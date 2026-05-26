@@ -7,7 +7,7 @@ import fs from "node:fs";
 
 export const uploadToCloudinary = async (
   filePath,
-  folder = process.env.CLOUDINARY_FOLDER
+  folder = process.env.CLOUDINARY_FOLDER,
 ) => {
   try {
     const result = await cloudinary.uploader.upload(filePath, {
@@ -51,6 +51,53 @@ export const uploadToCloudinary = async (
       });
     }
   }
+};
+
+const IMAGE_TRANSFORMATION = [
+  {
+    width: 1200, // Resize down to 1200px wide max (preserves aspect ratio)
+    crop: "limit", // "limit" means: only shrink if larger, never upscale
+    quality: "auto", // Let Cloudinary pick the optimal compression level
+    fetch_format: "auto", // Serve WebP or AVIF automatically based on browser support
+  },
+];
+
+export const uploadBufferToCloudinary = (
+  buffer, // Node.js Buffer from file.buffer
+  options = {}, // e.g. { folder, public_id }
+) => {
+  // Merge caller options with defaults so folder + transformations always apply
+  const uploadOptions = {
+    folder: options.folder || process.env.CLOUDINARY_FOLDER,
+    resource_type: "auto",
+    transformation: IMAGE_TRANSFORMATION,
+    // public_id is optional — if provided, Cloudinary uses it as the filename.
+    // The bulk controller passes the original filename (without extension) so
+    // re-uploading the same image overwrites rather than creating duplicates.
+    ...(options.public_id ? { public_id: options.public_id } : {}),
+  };
+
+  // We return a Promise so the caller can await it, just like uploadToCloudinary
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (error, result) => {
+        // This callback fires once Cloudinary finishes (success or failure).
+        // result contains secure_url, public_id, width, height etc.
+        if (error) {
+          console.error("Cloudinary buffer upload failed:", error.message);
+          reject(new Error(`Image upload failed: ${error.message}`));
+        } else {
+          resolve(result);
+        }
+      },
+    );
+
+    // stream.end() both writes the data AND signals "no more data coming",
+    // which tells Cloudinary's stream it can start processing.
+    // This is equivalent to piping a file read stream: fs.createReadStream(path).pipe(stream)
+    stream.end(buffer);
+  });
 };
 
 // Delete file from Cloudinary using public_id

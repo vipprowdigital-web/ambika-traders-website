@@ -24,6 +24,8 @@ import {
   ChartPie,
   Table2,
   Globe,
+  Boxes,
+  Package,
 } from "lucide-react";
 import { NavMain } from "~/components/nav-main";
 import { NavProjects } from "~/components/nav-projects";
@@ -109,6 +111,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: "/admin/domains",
         icon: Globe,
         isActive: isActive("/admin/domains"),
+      },
+    ],
+
+    productManagementNav: [
+      {
+        title: "Products",
+        url: "/admin/products",
+        icon: Package,
+        isActive: isActive("/admin/products"),
+      },
+      {
+        title: "Categories",
+        url: "/admin/product-categories",
+        icon: Boxes,
+        isActive: isActive("/admin/product-categories"),
       },
     ],
 
@@ -253,6 +270,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain
           items={data.serviceManagementNav}
           groupName="Service Management"
+        />
+        <NavMain
+          items={data.productManagementNav}
+          groupName="Product Management"
         />
         <NavMain
           items={data.customerFeedbackNav}

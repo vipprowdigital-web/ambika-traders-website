@@ -62,7 +62,7 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "ProductCategory",
       required: [true, "Product must belong to a category"],
     },
     images: [

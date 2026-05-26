@@ -127,6 +127,29 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+// @desc    Get single product by Slug or ID
+// @route   GET /api/products/:slugOrId
+// @access  Public
+const getProductById = async (req, res) => {
+  try {
+    const { slugOrId } = req.params;
+    const query = slugOrId.match(/^[0-9a-fA-F]{24}$/)
+      ? { _id: slugOrId }
+      : { slug: slugOrId };
+
+    const product = await Product.findOne(query);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, data: product });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Update a whole product record (Full Overwrite)
 // @route   PUT /api/products/:id
 // @access  Private/Admin
@@ -278,6 +301,7 @@ const deleteProduct = async (req, res) => {
 export {
   createProduct,
   getAllProducts,
+  getProductById,
   updateProductFull,
   patchProductPartial,
   deleteProduct,

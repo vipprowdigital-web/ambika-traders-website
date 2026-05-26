@@ -28,14 +28,21 @@ export default [
       ...createCrudRoutes("certificate"),
       ...createCrudRoutes("user-certificate"),
       ...createCrudRoutes("gallery"),
-       ...createCrudRoutes("support"),
+      ...createCrudRoutes("support"),
       ...createCrudRoutes("contact"),
       ...createCrudRoutes("domains"),
 
+      ...createCrudRoutes("products"),
+      route(
+        "products/bulk-upload",
+        "features/products/components/BulkUploadPage.tsx",
+      ),
+
+      ...createCrudRoutes("product-categories"),
+
       // Single Routes -> Model / Pop Form / Chat Box / AI Agents / Etc.
 
-       route("feedback", "features/feedback/index.tsx"),
-
+      route("feedback", "features/feedback/index.tsx"),
 
       // Add other custom routes freelya
       //   route("reports", "features/reports/index.tsx"),

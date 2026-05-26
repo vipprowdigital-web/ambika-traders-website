@@ -16,15 +16,15 @@ export default function Navbar() {
   };
 
   return (
-    <header className="w-full border-b border-zinc-200 bg-white text-black font-sans sticky top-0 z-50">
+    <header className="w-full border-b border-zinc-200 bg-white text-black font-sans sticky top-0 z-100">
       {/* 1. Top Utility Bar */}
       <div className="w-full bg-zinc-50 border-b border-zinc-100 py-2 px-4 sm:px-6 lg:px-8 text-xs flex justify-between items-center text-zinc-600">
         <div>
           <span>
-            Customer Support: <strong>1-800-555-HARDWARE</strong>
+            Customer Support: <strong>+91 12345-67089</strong>
           </span>
           <span className="hidden md:inline ml-4 border-l border-zinc-300 pl-4">
-            Mon - Fri: 8am - 6pm EST
+            Mon - Fri: 8am - 6pm IST
           </span>
         </div>
         <div className="flex gap-4">
@@ -92,7 +92,7 @@ export default function Navbar() {
                 onClick={() => toggleDropdown("door")}
                 className="flex items-center gap-1 py-2 border-b-2 border-transparent hover:border-black transition-all"
               >
-                Products
+                Categories
                 <svg
                   className={`w-3 h-3 transition-transform ${activeDropdown === "door" ? "rotate-180" : ""}`}
                   fill="none"
@@ -145,7 +145,7 @@ export default function Navbar() {
             </div>
 
             {/* Category Dropdown: Cabinet & Kitchen */}
-            <div className="relative">
+            {/* <div className="relative">
               <button
                 onClick={() => toggleDropdown("cabinet")}
                 className="flex items-center gap-1 py-2 border-b-2 border-transparent hover:border-black transition-all"
@@ -194,19 +194,13 @@ export default function Navbar() {
                   </Link>
                 </div>
               )}
-            </div>
+            </div> */}
 
             <Link
-              href="/finishes"
+              href="/products"
               className="py-2 border-b-2 border-transparent hover:border-black transition-all"
             >
-              Finishes & Materials
-            </Link>
-            <Link
-              href="/projects"
-              className="py-2 border-b-2 border-transparent hover:border-black transition-all"
-            >
-              Commercial Projects
+              Products
             </Link>
             <Link
               href="/about"
@@ -218,12 +212,12 @@ export default function Navbar() {
 
           {/* Right Section: Trade Account / Contact CTA (Instead of a store cart) */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link
+            {/* <Link
               href="/trade-program"
               className="text-sm font-medium hover:underline"
             >
-              Trade Portal
-            </Link>
+              About
+            </Link> */}
             <Link
               href="/quote"
               className="bg-black text-white px-5 py-2.5 rounded text-sm font-medium tracking-wide hover:bg-zinc-800 transition-colors"

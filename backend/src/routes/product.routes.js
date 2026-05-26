@@ -6,12 +6,14 @@ import {
   createProduct,
   deleteProduct,
   getAllProducts,
+  getProductById,
   patchProductPartial,
   updateProductFull,
 } from "../controllers/product.controller.js";
 
 // Public Pipeline API
 router.get("/", getAllProducts);
+router.get("/:slugOrId", getProductById);
 
 // Protected Admin Actions using ensureAuth
 router.post("/", ensureAuth, upload.array("images", 5), createProduct);

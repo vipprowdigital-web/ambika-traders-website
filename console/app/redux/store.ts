@@ -52,6 +52,14 @@ import { userCertificateApi } from "~/features/user-certificate/data/user-certif
 import contactReducer from "~/features/contact/data/contactSlice";
 import { contactApi } from "~/features/contact/data/contactApi";
 
+// ⚙️  Product Category Feature
+import productCategoryReducer from "~/features/product-categories/data/productCategorySlice";
+import { productCategoryApi } from "~/features/product-categories/data/productCategoryApi";
+
+// ⚙️  Product Feature
+import productReducer from "~/features/products/data/productSlice";
+import { productApi } from "~/features/products/data/productApi";
+
 export const store = configureStore({
   reducer: {
     // ✅ App Configuration state + API
@@ -73,7 +81,7 @@ export const store = configureStore({
     category: categoryReducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
 
-// ✅ Domain state + API
+    // ✅ Domain state + API
     domain: domainReducer,
     [domainApi.reducerPath]: domainApi.reducer,
 
@@ -104,6 +112,14 @@ export const store = configureStore({
     // ✅ Contact state + API
     contact: contactReducer,
     [contactApi.reducerPath]: contactApi.reducer,
+
+    // ✅ Contact state + API
+    productCategory: productCategoryReducer,
+    [productCategoryApi.reducerPath]: productCategoryApi.reducer,
+
+    // ✅ Product state + API
+    product: productReducer,
+    [productApi.reducerPath]: productApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -118,7 +134,9 @@ export const store = configureStore({
       galleryApi.middleware,
       certificateApi.middleware,
       userCertificateApi.middleware,
-      contactApi.middleware
+      contactApi.middleware,
+      productCategoryApi.middleware,
+      productApi.middleware,
     ),
 });
 

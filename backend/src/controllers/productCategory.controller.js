@@ -5,7 +5,7 @@ import {
 import ProductCategory from "../models/productCategory.model.js";
 
 // @desc    Create a new category
-// @route   POST /api/categories
+// @route   POST /api/product-categories
 // @access  Private/Admin
 const createProductCategory = async (req, res) => {
   try {
@@ -56,10 +56,10 @@ const createProductCategory = async (req, res) => {
   }
 };
 
-// @desc    Get all categories (Supports Pagination & Search)
-// @route   GET /api/categories
+// @desc    Get all product categories (Supports Pagination & Search)
+// @route   GET /api/product-categories
 // @access  Public
-const getAllProductCategories = async (req, res) => {
+const getProductCategories = async (req, res) => {
   try {
     // 1. Extract query params with fallback defaults
     const page = parseInt(req.query.page) || 1;
@@ -107,8 +107,30 @@ const getAllProductCategories = async (req, res) => {
   }
 };
 
+// @desc    Get all product categories (Supports Pagination & Search)
+// @route   GET /api/product-categories
+// @access  Public
+const getAllProductCategories = async (req, res) => {
+  try {
+    const total = await ProductCategory.countDocuments();
+    const categories = await ProductCategory.find();
+    return res.status(200).json({
+      success: true,
+      message: "Product Categories fetched successfully.",
+      data: categories,
+      totalCount: total,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal Error",
+      error: error.message,
+    });
+  }
+};
+
 // @desc    Get single category by Slug or ID
-// @route   GET /api/categories/:slugOrId
+// @route   GET /api/product-categories/:slugOrId
 // @access  Public
 const getProductCategoryBySlugOrId = async (req, res) => {
   try {
@@ -131,7 +153,7 @@ const getProductCategoryBySlugOrId = async (req, res) => {
 };
 
 // @desc    Update a category
-// @route   PUT /api/categories/:id
+// @route   PUT /api/product-categories/:id
 // @access  Private/Admin
 const updateProductCategory = async (req, res) => {
   try {
@@ -182,8 +204,64 @@ const updateProductCategory = async (req, res) => {
   }
 };
 
+// @desc    Partially update a product category (e.g., toggle status or quick edits)
+// @route   PATCH /api/product-categories/:id
+// @access  Private/Admin
+const partiallyUpdateProductCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the category first
+    let category = await ProductCategory.findById(id);
+    if (!category) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product Category not found" });
+    }
+
+    // 1. Handle file updates ONLY if a new file is actually provided
+    if (req.file) {
+      // Delete old asset from Cloudinary if it exists
+      if (category.image && category.image.publicId) {
+        await destroyFromCloudinary(category.image.publicId);
+      }
+
+      // Upload new asset
+      const uploadResult = await uploadToCloudinary(
+        req.file.path || req.file.buffer,
+        "ambikaTraders/categories",
+      );
+
+      category.image = {
+        url: uploadResult.secure_url || uploadResult.url,
+        publicId: uploadResult.public_id,
+      };
+    }
+
+    // 2. Dynamically apply body fields only if they are explicitly present in req.body
+    const fieldsToUpdate = ["name", "description", "isActive"];
+
+    fieldsToUpdate.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        category[field] = req.body[field];
+      }
+    });
+
+    // 3. Persist modifications to MongoDB (Triggers your .pre('save') slug middleware if name changed)
+    await category.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Product Category partially updated successfully",
+      data: category,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Delete a category
-// @route   DELETE /api/categories/:id
+// @route   DELETE /api/product-categories/:id
 // @access  Private/Admin
 const deleteProductCategory = async (req, res) => {
   try {
@@ -214,8 +292,10 @@ const deleteProductCategory = async (req, res) => {
 
 export {
   createProductCategory,
+  getProductCategories,
   getAllProductCategories,
   getProductCategoryBySlugOrId,
   updateProductCategory,
+  partiallyUpdateProductCategory,
   deleteProductCategory,
 };
