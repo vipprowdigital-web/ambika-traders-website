@@ -322,8 +322,9 @@ function ProductSection() {
                   "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600"
                 }
                 alt={selectedProduct.name}
-                fill
-                className="object-cover"
+                width={1000}
+                height={500}
+                className="object-cover w-full h-full"
               />
               <button
                 onClick={() => {
