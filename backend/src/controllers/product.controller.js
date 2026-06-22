@@ -78,12 +78,19 @@ const createProduct = async (req, res) => {
 // @desc    Get all products with Pagination and Query Filtering
 // @route   GET /api/products
 // @access  Public
+// @desc    Get all products with Pagination and Query Filtering
+// @route   GET /api/products
+// @access  Public
 const getAllProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
     const categoryId = req.query.category || "";
+    const material = req.query.material || "";
+    const finish = req.query.finish || "";
+    const size = req.query.size || ""; // e.g. "128mm"
+    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : null;
 
     const skip = (page - 1) * limit;
     const query = {};
@@ -97,6 +104,46 @@ const getAllProducts = async (req, res) => {
 
     if (categoryId) {
       query.category = categoryId;
+    }
+
+    if (material) {
+      query["specifications.material"] = material;
+    }
+
+    // Filters that live inside the variants array use $elemMatch
+    // so multiple conditions match the SAME variant, not different ones.
+    const variantMatch = {};
+
+    if (finish) {
+      variantMatch.finish = finish;
+    }
+
+    if (size) {
+      // size comes in as "128mm" -> split into value + unit
+      const match = size.match(/^(\d+(?:\.\d+)?)([a-zA-Z]+)$/);
+      if (match) {
+        variantMatch["size.value"] = Number(match[1]);
+        variantMatch["size.unit"] = match[2];
+      }
+    }
+
+    if (maxPrice !== null && !Number.isNaN(maxPrice)) {
+      // Match variants priced at or below maxPrice, considering discountPrice first
+      variantMatch.$or = [
+        { discountPrice: { $lte: maxPrice, $exists: true, $ne: null } },
+        {
+          $and: [
+            {
+              $or: [{ discountPrice: { $exists: false } }, { discountPrice: null }],
+            },
+            { price: { $lte: maxPrice } },
+          ],
+        },
+      ];
+    }
+
+    if (Object.keys(variantMatch).length > 0) {
+      query.variants = { $elemMatch: variantMatch };
     }
 
     const total = await Product.countDocuments(query);
@@ -126,6 +173,55 @@ const getAllProducts = async (req, res) => {
     });
   }
 };
+
+// const getAllProducts = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const search = req.query.search || "";
+//     const categoryId = req.query.category || "";
+
+//     const skip = (page - 1) * limit;
+//     const query = {};
+
+//     if (search) {
+//       query.$or = [
+//         { name: { $regex: search, $options: "i" } },
+//         { description: { $regex: search, $options: "i" } },
+//       ];
+//     }
+
+//     if (categoryId) {
+//       query.category = categoryId;
+//     }
+
+//     const total = await Product.countDocuments(query);
+
+//     const products = await Product.find(query)
+//       .populate("category", "name slug")
+//       .sort({ createdAt: -1 })
+//       .skip(skip)
+//       .limit(limit);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Products fetched successfully.",
+//       data: products,
+//       pagination: {
+//         total,
+//         page,
+//         limit,
+//         totalPages: Math.ceil(total / limit),
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal Error",
+//       error: error.message,
+//     });
+//   }
+// };
 
 // @desc    Get single product by Slug or ID
 // @route   GET /api/products/:slugOrId
