@@ -12,21 +12,48 @@ export default function HeroSection() {
 
   return (
     <div className="bg-background text-foreground">
-      <section className="relative w-full h-screen flex flex-col overflow-hidden">
+      <section
+        className="w-full h-screen flex flex-col overflow-hidden"
+        style={{ position: "relative" }}
+      >
 
         {/* VIDEO */}
         <video
-          autoPlay loop muted playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+          }}
         >
-          <source src="/video/4708336-uhd_4096_2160_25fps.mp4" type="video/mp4" />
+          <source
+            src="https://res.cloudinary.com/dl6fjer3y/video/upload/v1782201173/144c54a94cc1455b9b22eaa58819a6f8_720w_tiawpn.mp4"
+            type="video/mp4"
+          />
         </video>
 
         {/* Dark overlay */}
-        <div className="absolute inset-0 z-10 bg-black/60" />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.60)",
+            zIndex: 1,
+          }}
+        />
 
         {/* ── TICKER — top ── */}
-        <div className="relative z-20 border-b border-white/10 bg-black/30 backdrop-blur-sm py-2.5 overflow-hidden flex-shrink-0">
+        <div
+          className="border-b border-white/10 bg-black/30 backdrop-blur-sm py-2.5 overflow-hidden flex-shrink-0"
+          style={{ position: "relative", zIndex: 2 }}
+        >
           <div
             className="flex gap-10 whitespace-nowrap"
             style={{ animation: "ticker 20s linear infinite" }}
@@ -41,7 +68,10 @@ export default function HeroSection() {
         </div>
 
         {/* ── CENTER CONTENT ── */}
-        {/* <div className="relative z-20 flex-1 flex items-center justify-center px-4">
+        {/* <div
+          className="flex-1 flex items-center justify-center px-4"
+          style={{ position: "relative", zIndex: 2 }}
+        >
           <div className="text-center max-w-3xl mx-auto space-y-6">
 
             <motion.span
@@ -118,8 +148,16 @@ export default function HeroSection() {
 
         {/* Bottom fade */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-28 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)" }}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "7rem",
+            zIndex: 2,
+            pointerEvents: "none",
+            background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)",
+          }}
         />
 
       </section>

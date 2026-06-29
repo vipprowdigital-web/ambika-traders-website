@@ -3,7 +3,7 @@ import HomePage from "./home/page";
 import ProductCategories from "@/components/ProductCategories";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import WhyChooseUs from "@/components/WhyChooseUs";
-import BrandsWeDeal from "@/components/BrandsWeDeal";
+
 import ProjectGallery from "@/components/Projectgallery";
 import Testimonials from "@/components/Testimonials";
 import StatsCounter from "@/components/StatsCounter";
@@ -20,7 +20,7 @@ export default function Page() {
       <AboutUs />
 
       <WhyChooseUs />
-      <BrandsWeDeal />
+      
       <ProjectGallery />
       <Testimonials />
       <StatsCounter />
