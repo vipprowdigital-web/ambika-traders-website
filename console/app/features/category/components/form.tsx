@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   useCreateCategoryMutation,
-  useUpdateCategoryMutation,
+  useUpdateCategoryMutation,                                                                                                                                             
   useGetCategoryByIdQuery,
   useGetCategoriesQuery,
 } from "../data/categoryApi";

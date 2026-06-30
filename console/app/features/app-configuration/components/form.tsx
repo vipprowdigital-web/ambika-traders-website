@@ -202,13 +202,13 @@ export default function AppConfigurationForm({
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-10">
         {/* BASIC INFO */}
-        <Card className="backdrop-blur-lg bg-primary border border-border shadow-sm hover:shadow-lg transition-all duration-300">
+        <Card className="backdrop-blur-lg bg-black border border-border shadow-sm hover:shadow-lg transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-base sm:text-lg font-semibold">
               Basic Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 bg-black lg:grid-cols-3 gap-5 sm:gap-6">
             {[
               {
                 label: "App Name",

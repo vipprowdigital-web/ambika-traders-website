@@ -66,7 +66,10 @@ export default function StatsCounter() {
     <section
       ref={ref}
       className="py-20 relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #92400e 0%, #b45309 40%, #d97706 100%)" }}
+  style={{
+  background:
+    "linear-gradient(135deg, #71717a 0%, #52525b 35%, #3f3f46 70%, #18181b 100%)",
+}}
     >
       {/* Texture overlay */}
       <div
