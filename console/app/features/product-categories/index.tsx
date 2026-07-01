@@ -136,6 +136,18 @@ export default function ProductCategoryPage() {
       },
     },
     {
+      accessorKey: "parentCategory",
+      header: "Parent",
+      cell: ({ row }) => {
+        const parent = row.original.parentCategory;
+        return parent ? (
+          <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{parent.name}</span>
+        ) : (
+          <span className="text-xs text-muted-foreground italic">Top-level</span>
+        );
+      },
+    },
+    {
       accessorKey: "isActive",
       header: "Active",
       cell: ({ row }) => (

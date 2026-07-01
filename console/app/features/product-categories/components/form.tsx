@@ -14,7 +14,14 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { ImageIcon, UploadIcon, XIcon, Loader2 } from "lucide-react";
+import { ImageIcon, UploadIcon, XIcon, Loader2, ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,6 +29,7 @@ import {
   useCreateProductCategoryMutation,
   useUpdateProductCategoryMutation,
   useGetProductCategoryByIdQuery,
+  useGetProductCategoriesAllQuery,
 } from "../data/productCategoryApi";
 
 export default function ProductCategoryForm({
@@ -37,6 +45,10 @@ export default function ProductCategoryForm({
   // Pass it directly into your query hook
   const { data: categoryData, isLoading: loadingCategory } =
     useGetProductCategoryByIdQuery(id, { skip: !isEdit });
+  const { data: allCategoriesData } = useGetProductCategoriesAllQuery();
+  const parentOptions = (allCategoriesData?.data ?? []).filter(
+    (c: any) => !c.parentCategory && c._id !== id
+  );
   const [createCategory] = useCreateProductCategoryMutation();
   const [updateCategory] = useUpdateProductCategoryMutation();
 
@@ -45,6 +57,7 @@ export default function ProductCategoryForm({
     description: "",
     isActive: true,
     image: null as string | null,
+    parentCategory: "" as string,
   });
 
   useEffect(() => {
@@ -54,7 +67,8 @@ export default function ProductCategoryForm({
         name: c.name || "",
         description: c.description || "",
         isActive: c.isActive ?? true,
-        image: c.image?.url || null, // Safely mapping the nested object layout url
+        image: c.image?.url || null,
+        parentCategory: c.parentCategory?._id || c.parentCategory || "",
       });
     }
   }, [categoryData]);
@@ -83,6 +97,7 @@ export default function ProductCategoryForm({
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("isActive", String(values.isActive));
+    if (values.parentCategory) formData.append("parentCategory", values.parentCategory);
 
     if (imageFiles.length > 0) {
       formData.append("image", imageFiles[0].file as Blob);
@@ -96,7 +111,7 @@ export default function ProductCategoryForm({
         await createCategory(formData).unwrap();
         toast.success("Product category created successfully!");
         if (actionType === "create_another") {
-          setValues({ name: "", description: "", isActive: true, image: null });
+          setValues({ name: "", description: "", isActive: true, image: null, parentCategory: "" });
           if (imageFiles.length > 0) imageHandlers.removeFile(imageFiles[0].id);
           return;
         }
@@ -146,7 +161,29 @@ export default function ProductCategoryForm({
               </CardHeader>
               <CardContent className="space-y-5">
                 <div>
-                  <Label className="mb-2 block">Category Name</Label>
+                  <Label className="mb-2 block">Parent Category</Label>
+                  <Select
+                    value={values.parentCategory || "none"}
+                    onValueChange={(v) => handleChange("parentCategory", v === "none" ? "" : v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="None (Top-level category)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None (Top-level)</SelectItem>
+                      {parentOptions.map((cat: any) => (
+                        <SelectItem key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Leave as "None" to make this a top-level parent category.
+                  </p>
+                </div>
+
+                <div>
                   <Input
                     value={values.name}
                     placeholder="e.g., Cabinet Pull Handles, Mortise Handles"

@@ -28,6 +28,12 @@ export const productCategoryApi = createApi({
       providesTags: ["ProductCategory"],
     }),
 
+    // ✅ Get categories grouped by parent
+    getGroupedProductCategories: builder.query<any, void>({
+      query: () => "product-categories/grouped",
+      providesTags: ["ProductCategory"],
+    }),
+
     // ✅ Get single product category by ID
     getProductCategoryById: builder.query({
       query: (slugOrId) => `product-categories/${slugOrId}`,
@@ -78,6 +84,7 @@ export const productCategoryApi = createApi({
 export const {
   useGetProductCategoriesQuery,
   useGetProductCategoriesAllQuery,
+  useGetGroupedProductCategoriesQuery,
   useGetProductCategoryByIdQuery,
   useCreateProductCategoryMutation,
   useUpdateProductCategoryMutation,

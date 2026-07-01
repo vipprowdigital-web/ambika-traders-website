@@ -9,7 +9,7 @@ import ProductCategory from "../models/productCategory.model.js";
 // @access  Private/Admin
 const createProductCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, parentCategory } = req.body;
 
     if (!name) {
       return res
@@ -42,6 +42,7 @@ const createProductCategory = async (req, res) => {
       name,
       description,
       image: imageData,
+      parentCategory: parentCategory || null,
     });
 
     await newCategory.save();
@@ -82,6 +83,7 @@ const getProductCategories = async (req, res) => {
 
     // 5. Fetch paginated data
     const categories = await ProductCategory.find(query)
+      .populate("parentCategory", "name slug")
       .sort({ createdAt: -1 }) // Latest first
       .skip(skip)
       .limit(limit);
@@ -113,7 +115,7 @@ const getProductCategories = async (req, res) => {
 const getAllProductCategories = async (req, res) => {
   try {
     const total = await ProductCategory.countDocuments();
-    const categories = await ProductCategory.find();
+    const categories = await ProductCategory.find().populate("parentCategory", "name slug");
     return res.status(200).json({
       success: true,
       message: "Product Categories fetched successfully.",
@@ -126,6 +128,37 @@ const getAllProductCategories = async (req, res) => {
       message: "Internal Error",
       error: error.message,
     });
+  }
+};
+
+// @desc    Get categories grouped by parent (parent → children)
+// @route   GET /api/product-categories/grouped
+// @access  Public
+const getGroupedProductCategories = async (req, res) => {
+  try {
+    const all = await ProductCategory.find({ isActive: true })
+      .populate("parentCategory", "name slug")
+      .sort({ createdAt: 1 })
+      .lean();
+
+    // Separate parents (no parentCategory) and children
+    const parents = all.filter((c) => !c.parentCategory);
+    const children = all.filter((c) => c.parentCategory);
+
+    const grouped = parents.map((parent) => ({
+      ...parent,
+      children: children.filter(
+        (child) => String(child.parentCategory._id) === String(parent._id)
+      ),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Grouped product categories fetched successfully.",
+      data: grouped,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -158,7 +191,7 @@ const getProductCategoryBySlugOrId = async (req, res) => {
 const updateProductCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, isActive } = req.body;
+    const { name, description, isActive, parentCategory } = req.body;
 
     let category = await ProductCategory.findById(id);
     if (!category) {
@@ -191,6 +224,7 @@ const updateProductCategory = async (req, res) => {
     category.description = description || category.description;
     category.image = imageData;
     if (isActive !== undefined) category.isActive = isActive;
+    if (parentCategory !== undefined) category.parentCategory = parentCategory || null;
 
     await category.save();
 
@@ -239,7 +273,7 @@ const partiallyUpdateProductCategory = async (req, res) => {
     }
 
     // 2. Dynamically apply body fields only if they are explicitly present in req.body
-    const fieldsToUpdate = ["name", "description", "isActive"];
+    const fieldsToUpdate = ["name", "description", "isActive", "parentCategory"];
 
     fieldsToUpdate.forEach((field) => {
       if (req.body[field] !== undefined) {
@@ -294,6 +328,7 @@ export {
   createProductCategory,
   getProductCategories,
   getAllProductCategories,
+  getGroupedProductCategories,
   getProductCategoryBySlugOrId,
   updateProductCategory,
   partiallyUpdateProductCategory,

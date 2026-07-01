@@ -4,6 +4,7 @@ import {
   createProductCategory,
   deleteProductCategory,
   getAllProductCategories,
+  getGroupedProductCategories,
   getProductCategories,
   getProductCategoryBySlugOrId,
   partiallyUpdateProductCategory,
@@ -15,6 +16,7 @@ import upload from "../config/multer.js";
 // Public routes
 router.get("/", getProductCategories);
 router.get("/all", ensureAuth, getAllProductCategories);
+router.get("/grouped", getGroupedProductCategories);
 router.get("/:slugOrId", getProductCategoryBySlugOrId);
 
 // Admin-only protected routes
