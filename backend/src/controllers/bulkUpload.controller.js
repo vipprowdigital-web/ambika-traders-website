@@ -65,43 +65,39 @@ function toBaseSlug(name) {
  *      by an earlier doc in this batch) append -2, -3, … until it's free.
  */
 async function assignSlugs(productDocs) {
+  if (productDocs.length === 0) return productDocs;
+
   const baseSlugs = productDocs.map((d) => toBaseSlug(d.name));
 
-  // Fetch all slugs from the DB that start with any of our base slugs so we
-  // can detect collisions without N round trips.
+  // Fetch exact-match slugs
   const existingDocs = await Product.find(
     { slug: { $in: baseSlugs } },
     { slug: 1, _id: 0 },
   ).lean();
-  // Also fetch slugs like "my-product-2", "my-product-3" etc.
+
+  // Fetch numbered variants like "my-product-2" only when we have slugs
+  const escapedSlugs = baseSlugs.map((s) =>
+    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+  );
   const existingDocs2 = await Product.find(
-    {
-      slug: {
-        $regex: `^(${baseSlugs.map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(|-\\d+)$`,
-      },
-    },
+    { slug: { $regex: `^(${escapedSlugs.join("|")})(|-\\d+)$` } },
     { slug: 1, _id: 0 },
   ).lean();
 
-  // All slugs currently in the DB (for our base set)
   const takenSlugs = new Set([
     ...existingDocs.map((d) => d.slug),
     ...existingDocs2.map((d) => d.slug),
   ]);
 
-  // Slugs claimed by earlier docs in THIS batch
   const batchSlugs = new Set();
 
   for (let i = 0; i < productDocs.length; i++) {
     let candidate = baseSlugs[i];
     let counter = 2;
-
-    // Increment until we find a slug that's free in both the DB and this batch
     while (takenSlugs.has(candidate) || batchSlugs.has(candidate)) {
       candidate = `${baseSlugs[i]}-${counter}`;
       counter++;
     }
-
     productDocs[i].slug = candidate;
     batchSlugs.add(candidate);
   }
@@ -119,83 +115,10 @@ function normaliseKeys(row) {
   return clean;
 }
 
-// ─── Row validation ───────────────────────────────────────────────────────────
+// ─── Row validation (only checks that name exists) ────────────────────────────
 
-function validateRow(row, excelRowNum, imageFileMap, categoryMap) {
-  const errors = [];
-
-  if (!row.name?.toString().trim())
-    errors.push(`Row ${excelRowNum}: 'name' is required.`);
-  if (!row.description?.toString().trim())
-    errors.push(`Row ${excelRowNum}: 'description' is required.`);
-  if (!row.category?.toString().trim())
-    errors.push(`Row ${excelRowNum}: 'category' is required.`);
-  else if (!categoryMap[row.category.toString().trim().toLowerCase()])
-    errors.push(
-      `Row ${excelRowNum}: Category "${row.category}" does not exist in the database.`,
-    );
-
-  if (!row.spec_material?.toString().trim())
-    errors.push(`Row ${excelRowNum}: 'spec_material' is required.`);
-  if (!row.variant_finish?.toString().trim())
-    errors.push(`Row ${excelRowNum}: 'variant_finish' is required.`);
-  if (
-    row.variant_size_value === undefined ||
-    row.variant_size_value === "" ||
-    isNaN(Number(row.variant_size_value))
-  )
-    errors.push(
-      `Row ${excelRowNum}: 'variant_size_value' must be a valid number.`,
-    );
-  if (!["mm", "inch", "cm"].includes(row.variant_size_unit?.toString().trim()))
-    errors.push(
-      `Row ${excelRowNum}: 'variant_size_unit' must be mm, inch, or cm.`,
-    );
-
-  if (row.variant_price !== undefined && row.variant_price !== "") {
-    if (isNaN(Number(row.variant_price)) || Number(row.variant_price) < 0)
-      errors.push(
-        `Row ${excelRowNum}: 'variant_price' must be a non-negative number.`,
-      );
-  }
-  if (
-    row.variant_discountPrice !== undefined &&
-    row.variant_discountPrice !== ""
-  ) {
-    if (
-      isNaN(Number(row.variant_discountPrice)) ||
-      Number(row.variant_discountPrice) < 0
-    )
-      errors.push(
-        `Row ${excelRowNum}: 'variant_discountPrice' must be a non-negative number.`,
-      );
-    if (
-      row.variant_price &&
-      Number(row.variant_discountPrice) >= Number(row.variant_price)
-    )
-      errors.push(
-        `Row ${excelRowNum}: 'variant_discountPrice' must be less than 'variant_price'.`,
-      );
-  }
-
-  const imgFields = [
-    "variant_img1",
-    "variant_img2",
-    "variant_img3",
-    "variant_img4",
-    "product_img1",
-    "product_img2",
-    "product_img3",
-  ];
-  for (const field of imgFields) {
-    const fname = row[field]?.toString().trim();
-    if (fname && !imageFileMap[fname])
-      errors.push(
-        `Row ${excelRowNum}: Image "${fname}" (column '${field}') was not found in the uploaded images folder.`,
-      );
-  }
-
-  return errors;
+function validateRow(row) {
+  return !row.name?.toString().trim();
 }
 
 // ─── Row → Variant sub-document ───────────────────────────────────────────────
@@ -207,17 +130,19 @@ function rowToVariant(row, cloudinaryMap) {
       ? { url: cloudinaryMap[f].url, publicId: cloudinaryMap[f].publicId }
       : null;
   };
+  const sizeValue =
+    row.variant_size_value !== undefined && row.variant_size_value !== "" && !isNaN(Number(row.variant_size_value))
+      ? Number(row.variant_size_value)
+      : 0;
+  const sizeUnit = ["mm", "inch", "cm"].includes(row.variant_size_unit?.toString().trim())
+    ? row.variant_size_unit.toString().trim()
+    : "mm";
   return {
     sku: row.variant_sku?.toString().trim() || undefined,
-    finish: row.variant_finish.toString().trim(),
-    size: {
-      value: Number(row.variant_size_value),
-      unit: row.variant_size_unit.toString().trim(),
-    },
-    price: row.variant_price ? Number(row.variant_price) : undefined,
-    discountPrice: row.variant_discountPrice
-      ? Number(row.variant_discountPrice)
-      : undefined,
+    finish: row.variant_finish?.toString().trim() || "Standard",
+    size: { value: sizeValue, unit: sizeUnit },
+    price: row.variant_price && !isNaN(Number(row.variant_price)) ? Number(row.variant_price) : undefined,
+    discountPrice: row.variant_discountPrice && !isNaN(Number(row.variant_discountPrice)) ? Number(row.variant_discountPrice) : undefined,
     isAvailable: true,
     images: [
       img(row.variant_img1),
@@ -234,7 +159,11 @@ function groupRowsIntoProducts(rows, cloudinaryMap, categoryMap) {
   const productMap = new Map();
 
   for (const row of rows) {
-    const key = `${row.name.toString().trim().toLowerCase()}|||${row.category.toString().trim().toLowerCase()}`;
+    const name = row.name.toString().trim();
+    // Support both "category" (child) and "parent_category" columns.
+    // If "category" is filled, use it; otherwise fall back to "parent_category".
+    const categoryRaw = (row.category?.toString().trim() || row.parent_category?.toString().trim() || "").toLowerCase();
+    const key = `${name.toLowerCase()}|||${categoryRaw}`;
 
     if (!productMap.has(key)) {
       const img = (fname) => {
@@ -244,20 +173,19 @@ function groupRowsIntoProducts(rows, cloudinaryMap, categoryMap) {
           : null;
       };
       productMap.set(key, {
-        name: row.name.toString().trim(),
-        // slug is assigned later by assignSlugs() — do NOT set it here
-        description: row.description.toString().trim(),
-        category: categoryMap[row.category.toString().trim().toLowerCase()],
+        name,
+        // slug assigned later by assignSlugs()
+        description: row.description?.toString().trim() || "",
+        category: categoryMap[categoryRaw] || undefined,
         images: [
           img(row.product_img1),
           img(row.product_img2),
           img(row.product_img3),
         ].filter(Boolean),
         specifications: {
-          material: row.spec_material.toString().trim(),
+          material: row.spec_material?.toString().trim() || "",
           mechanism: row.spec_mechanism?.toString().trim() || undefined,
-          weightCapacity:
-            row.spec_weightCapacity?.toString().trim() || undefined,
+          weightCapacity: row.spec_weightCapacity?.toString().trim() || undefined,
           packagingUnit: row.spec_packagingUnit?.toString().trim() || "Piece",
         },
         variants: [],
@@ -336,12 +264,18 @@ export const bulkUploadProducts = async (req, res) => {
 
     const workbook = XLSX.read(req.files.excel[0].buffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", range: 1 });
+    // range: 2 → row 1 = column headers (used as keys), row 2 = hints (skipped), data starts row 3
+    // range: 2 → row 1 = column headers (keys), row 2 = hints (skipped), data starts row 3
+    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", range: 2 });
     const normalisedRows = rawRows.map(normaliseKeys);
 
     const rows = normalisedRows.filter((r) => {
       const name = r.name?.toString().trim();
-      return name && !name.startsWith("[");
+      // Skip empty rows, hint rows (start with "Required" or "Optional"), and example rows
+      if (!name) return false;
+      if (name.toLowerCase().startsWith("required")) return false;
+      if (name.toLowerCase().startsWith("optional")) return false;
+      return true;
     });
 
     if (rows.length === 0) {
@@ -368,24 +302,8 @@ export const bulkUploadProducts = async (req, res) => {
     for (const file of req.files?.images || [])
       imageFileMap[file.originalname] = file;
 
-    send("progress", { message: "Validating all rows…", percent: 15 });
-
-    const allErrors = [];
-    rows.forEach((row, index) => {
-      allErrors.push(...validateRow(row, index + 4, imageFileMap, categoryMap));
-    });
-
-    if (allErrors.length > 0) {
-      send("validation_errors", {
-        message: `Found ${allErrors.length} validation error${allErrors.length !== 1 ? "s" : ""}. Nothing was uploaded.`,
-        errors: allErrors,
-        percent: 15,
-      });
-      return res.end();
-    }
-
     send("progress", {
-      message: `All ${rows.length} rows valid. Uploading images to Cloudinary…`,
+      message: `Categories loaded. Uploading images to Cloudinary…`,
       percent: 20,
     });
 
@@ -421,6 +339,17 @@ export const bulkUploadProducts = async (req, res) => {
     send("progress", { message: "Building product documents…", percent: 62 });
 
     const productDocs = groupRowsIntoProducts(rows, cloudinaryMap, categoryMap);
+
+    if (productDocs.length === 0) {
+      send("done", {
+        message: "No products to insert (all rows were empty or duplicate).",
+        inserted: 0,
+        failed: 0,
+        errors: [],
+        percent: 100,
+      });
+      return res.end();
+    }
 
     // ── KEY FIX: generate slugs here since insertMany skips pre-save hooks ──
     send("progress", {

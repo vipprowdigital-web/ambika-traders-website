@@ -575,22 +575,22 @@ export default function BulkUploadPage() {
                 {
                   step: "2",
                   title: "Fill in your products",
-                  body: "Each row = one variant. Repeat product-level fields (name, category, specs) on every row for the same product.",
+                  body: "Each row = one variant. Only 'name' is required — all other fields are optional. Repeat name + category on every row for the same product.",
                 },
                 {
                   step: "3",
-                  title: "Name your images",
-                  body: "Use filenames with no spaces (e.g. handle_brass_96.jpg). Enter these exact filenames in the image columns.",
+                  title: "Use parent_category or category",
+                  body: "Fill 'parent_category' with the top-level name (e.g. Door Hardware) and 'category' with the child name (e.g. Mortise Locks). You can fill just one or both.",
                 },
                 {
                   step: "4",
-                  title: "Upload together",
-                  body: "Select your Excel file and your images folder, then click Start Bulk Upload.",
+                  title: "Name your images (optional)",
+                  body: "Use filenames with no spaces (e.g. handle_brass_96.jpg). Enter these exact filenames in the image columns. Images are not required.",
                 },
                 {
                   step: "5",
-                  title: "Fix any errors",
-                  body: "If validation fails, the exact row numbers and column names will be listed. Fix them in Excel and re-upload.",
+                  title: "Upload together",
+                  body: "Select your Excel file and optionally your images folder, then click Start Bulk Upload.",
                 },
               ].map(({ step, title, body }) => (
                 <div key={step} className="flex gap-3">
