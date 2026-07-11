@@ -34,7 +34,7 @@ export default function HeroSection() {
           }}
         >
           <source
-            src="https://res.cloudinary.com/dl6fjer3y/video/upload/v1782201173/144c54a94cc1455b9b22eaa58819a6f8_720w_tiawpn.mp4"
+            src="https://res.cloudinary.com/dl6fjer3y/video/upload/v1783342212/Untitled_design_y3vkmb.mp4"
             type="video/mp4"
           />
         </video>
@@ -44,7 +44,7 @@ export default function HeroSection() {
           style={{
             position: "absolute",
             inset: 0,
-            backgroundColor: "rgba(0,0,0,0.60)",
+            backgroundColor: "transparent",
             zIndex: 1,
           }}
         />
@@ -110,7 +110,7 @@ export default function HeroSection() {
               className="text-zinc-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed font-medium"
             >
               High-grade tools, industrial machinery, premium fittings —
-              all genuine, all in stock. Trusted by Jabalpur&apos;s builders since 2009.
+              all genuine, all in stock. Trusted by Jabalpur&apos;s builders since 2001.
             </motion.p>
 
             <motion.div

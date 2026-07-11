@@ -60,8 +60,8 @@ const allowedOrigins = [
 // ===============================================
 // 🧱 Core Middleware
 // ===============================================
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // app.use(
 //   cors({
@@ -111,11 +111,12 @@ app.use(hpp()); // Prevent HTTP parameter pollution
 // ⚡ Rate Limiting
 // ===============================================
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
-  max: 200, // Limit each IP
+  windowMs: 15 * 60 * 1000,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false,
   message: "Too many requests from this IP, please try again later.",
+  skip: (req) => req.path.includes("bulk-upload"), // skip rate limit for bulk upload
 });
 app.use(limiter);
 

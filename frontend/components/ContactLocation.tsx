@@ -3,28 +3,28 @@
 
 const contactDetails = [
   {
-    icon: "📍",
+   
     label: "Visit Us",
     value: "123, Hardware Market, Napier Town,\nJabalpur, Madhya Pradesh — 482001",
     href: "https://maps.google.com/?q=Jabalpur+Hardware+Market",
     linkText: "Get Directions →",
   },
   {
-    icon: "📞",
+   
     label: "Call Us",
     value: "+91 98765 43210\n+91 91234 56789",
     href: "tel:+919876543210",
     linkText: "Call Now →",
   },
   {
-    icon: "💬",
+   
     label: "WhatsApp",
     value: "+91 98765 43210\nChat anytime 9 AM – 8 PM",
     href: "https://wa.me/919876543210",
     linkText: "Message Us →",
   },
   {
-    icon: "✉️",
+    
     label: "Email",
     value: "info@yourhardwarestore.com",
     href: "mailto:info@yourhardwarestore.com",
@@ -75,7 +75,7 @@ export default function ContactLocation() {
             {/* Store hours */}
             <div className="rounded-3xl border border-foreground/10 bg-foreground/[0.02] p-6">
               <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
-                <span>🕐</span> Store Hours
+                <span></span> Store Hours
               </h3>
               <div className="space-y-3">
                 {hours.map((h) => (
@@ -99,7 +99,7 @@ export default function ContactLocation() {
                            hover:border-primary hover:bg-primary/5 transition-all duration-300 p-5"
               >
                 <div className="flex items-start gap-4">
-                  <span className="text-2xl mt-0.5 flex-shrink-0">{c.icon}</span>
+                  
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-1">{c.label}</p>
                     <p className="text-foreground text-sm font-medium whitespace-pre-line leading-relaxed mb-2">

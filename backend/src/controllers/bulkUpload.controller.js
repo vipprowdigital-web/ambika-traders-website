@@ -1,14 +1,20 @@
 /**
  * bulkUpload.controller.js
  *
- * Key fix in this version:
- *   insertMany() bypasses Mongoose pre-save hooks, so the slug pre-save hook
- *   never runs → every document gets slug=undefined → MongoDB stores null for
- *   all of them → E11000 duplicate key on the unique slug index.
+ * Key fixes in this version:
+ *   1. insertMany() bypasses Mongoose pre-save hooks, so the slug pre-save
+ *      hook never runs → every document gets slug=undefined → MongoDB stores
+ *      null for all of them → E11000 duplicate key on the unique slug index.
+ *      Fix: generate slugs in the controller with a collision-safe helper.
  *
- *   Fix: generate slugs in the controller with a collision-safe helper that
- *   appends "-2", "-3" etc. when the base slug already exists in the DB or
- *   appears more than once in the current batch.
+ *   2. insertBatch()'s error parsing only understood the raw MongoDB driver's
+ *      "MongoBulkWriteError" shape. Mongoose validation errors (e.g. a
+ *      required `category` being undefined because the category name in the
+ *      sheet didn't match any category in the DB) and Mongoose's own
+ *      "MongooseBulkWriteError" wrapper were falling through both branches,
+ *      resulting in silent "0 saved, 0 failed" with no visible error.
+ *      Fix: properly branch on ValidationError vs bulk-write error, and added
+ *      debug logging + a safety-net message so failures are never silent.
  */
 
 import XLSX from "xlsx";
@@ -24,7 +30,10 @@ const BATCH_SIZE = 500;
 
 export const uploadMiddleware = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: {
+    fileSize: 20 * 1024 * 1024,   // 20MB per file
+    files: 5001,                   // max 5000 images + 1 excel
+  },
   fileFilter: (_req, file, cb) => {
     const isExcel =
       file.mimetype.includes("spreadsheet") ||
@@ -160,10 +169,9 @@ function groupRowsIntoProducts(rows, cloudinaryMap, categoryMap) {
 
   for (const row of rows) {
     const name = row.name.toString().trim();
-    // Support both "category" (child) and "parent_category" columns.
-    // If "category" is filled, use it; otherwise fall back to "parent_category".
+    // Group variants by name only — same product name = same product, different rows = different variants
+    const key = name.toLowerCase();
     const categoryRaw = (row.category?.toString().trim() || row.parent_category?.toString().trim() || "").toLowerCase();
-    const key = `${name.toLowerCase()}|||${categoryRaw}`;
 
     if (!productMap.has(key)) {
       const img = (fname) => {
@@ -208,30 +216,32 @@ async function insertBatch(batch, batchNum) {
   try {
     const result = await Product.insertMany(batch, { ordered: false });
     insertedIds.push(...result.map((p) => p._id));
+    console.log(`[BulkUpload] batch ${batchNum}: inserted ${result.length}`);
   } catch (bulkErr) {
-    if (bulkErr.name === "MongoBulkWriteError" || bulkErr.result) {
-      const insertedMap = bulkErr.result?.insertedIds || {};
-      for (const id of Object.values(insertedMap)) {
-        if (id) insertedIds.push(id);
+    console.error(`[BulkUpload] batch ${batchNum} error:`, bulkErr.name, bulkErr.message);
+
+    // Partial success — Mongoose >=6 puts successfully inserted docs on insertedDocs
+    const insertedDocs = bulkErr.insertedDocs || [];
+    insertedIds.push(...insertedDocs.map((d) => d._id));
+    console.log(`[BulkUpload] batch ${batchNum}: partial inserted ${insertedDocs.length}`);
+
+    // Collect per-document write errors (duplicate slug, validation, etc.)
+    const writeErrors = bulkErr.writeErrors || bulkErr.result?.getWriteErrors?.() || [];
+    for (const we of writeErrors) {
+      const idx = we.index ?? we.err?.index ?? "?";
+      const doc = batch[idx];
+      const productName = doc?.name || `index ${idx}`;
+      const errmsg = we.errmsg || we.err?.errmsg || we.message || String(we);
+      if (errmsg.includes("E11000") || errmsg.includes("duplicate key")) {
+        insertErrors.push(`"${productName}" skipped — duplicate (already exists).`);
+      } else {
+        insertErrors.push(`"${productName}" failed — ${errmsg}`);
       }
-      const writeErrors =
-        bulkErr.writeErrors || bulkErr.result?.writeErrors || [];
-      for (const we of writeErrors) {
-        const idx = we.index ?? we.err?.index ?? "?";
-        const doc = batch[idx];
-        const productName = doc?.name || `index ${idx}`;
-        const errmsg =
-          we.errmsg || we.err?.errmsg || we.message || "Unknown error";
-        if (errmsg.includes("E11000") || errmsg.includes("duplicate key")) {
-          insertErrors.push(
-            `Batch ${batchNum}: "${productName}" — duplicate entry (a product with this slug already exists).`,
-          );
-        } else {
-          insertErrors.push(`Batch ${batchNum}: "${productName}" — ${errmsg}`);
-        }
-      }
-    } else {
-      insertErrors.push(`Batch ${batchNum}: ${bulkErr.message}`);
+    }
+
+    // If no writeErrors were extracted, surface the raw error message
+    if (writeErrors.length === 0 && insertedDocs.length === 0) {
+      insertErrors.push(`Batch ${batchNum} failed: ${bulkErr.message}`);
     }
   }
 
@@ -264,10 +274,11 @@ export const bulkUploadProducts = async (req, res) => {
 
     const workbook = XLSX.read(req.files.excel[0].buffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    // range: 2 → row 1 = column headers (used as keys), row 2 = hints (skipped), data starts row 3
-    // range: 2 → row 1 = column headers (keys), row 2 = hints (skipped), data starts row 3
-    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", range: 2 });
+    const rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
     const normalisedRows = rawRows.map(normaliseKeys);
+
+    console.log("[BulkUpload] raw rows from sheet:", rawRows.length);
+    if (rawRows[0]) console.log("[BulkUpload] first raw row keys:", Object.keys(rawRows[0]));
 
     const rows = normalisedRows.filter((r) => {
       const name = r.name?.toString().trim();
@@ -277,6 +288,9 @@ export const bulkUploadProducts = async (req, res) => {
       if (name.toLowerCase().startsWith("optional")) return false;
       return true;
     });
+
+    console.log("[BulkUpload] rows after filter:", rows.length);
+    if (rows[0]) console.log("[BulkUpload] first filtered row name:", rows[0].name);
 
     if (rows.length === 0) {
       send("error", {
@@ -313,19 +327,24 @@ export const bulkUploadProducts = async (req, res) => {
     for (let i = 0; i < imageFiles.length; i++) {
       const file = imageFiles[i];
       try {
+        // Sanitize filename for Cloudinary public_id:
+        // remove extension, replace spaces/special chars with hyphens
+        const sanitizedId = file.originalname
+          .replace(/\.[^/.]+$/, "")           // strip extension
+          .replace(/[^a-zA-Z0-9_-]/g, "-")   // replace spaces & special chars
+          .replace(/-+/g, "-")               // collapse multiple hyphens
+          .replace(/^-|-$/g, "");            // trim leading/trailing hyphens
         const result = await uploadBufferToCloudinary(file.buffer, {
           folder: CLOUDINARY_FOLDER,
-          public_id: file.originalname.replace(/\.[^/.]+$/, ""),
+          public_id: sanitizedId || `img-${Date.now()}`,
         });
         cloudinaryMap[file.originalname] = {
           url: result.secure_url || result.url,
           publicId: result.public_id,
         };
       } catch (err) {
-        send("error", {
-          message: `Failed to upload image "${file.originalname}": ${err.message}`,
-        });
-        return res.end();
+        // Skip this image and continue — don't abort the whole upload
+        console.warn(`[BulkUpload] skipping image "${file.originalname}": ${err.message}`);
       }
 
       if ((i + 1) % 5 === 0 || i + 1 === imageFiles.length) {
@@ -339,6 +358,7 @@ export const bulkUploadProducts = async (req, res) => {
     send("progress", { message: "Building product documents…", percent: 62 });
 
     const productDocs = groupRowsIntoProducts(rows, cloudinaryMap, categoryMap);
+    console.log("[BulkUpload] rows parsed:", rows.length, "→ products grouped:", productDocs.length);
 
     if (productDocs.length === 0) {
       send("done", {

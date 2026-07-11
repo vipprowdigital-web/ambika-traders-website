@@ -200,7 +200,7 @@ export default function ProductForm({
         name: p.name || "",
         description: p.description || "",
         categoryId:
-          typeof p.category === "object" ? p.category._id : p.category || "",
+          p.category && typeof p.category === "object" ? p.category._id : p.category || "",
         specMaterial: p.specifications?.material || "",
         specMechanism: p.specifications?.mechanism || "",
         specWeightCapacity: p.specifications?.weightCapacity || "",

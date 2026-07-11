@@ -29,7 +29,7 @@ export default function StoryHero() {
           WebkitTextStroke: "1px rgba(82,82,91,0.08)",
         }}
       >
-        SINCE<br />2009
+        SINCE<br />2001
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 w-full">
@@ -60,8 +60,8 @@ export default function StoryHero() {
             {/* Quick facts inline */}
             <div className="flex flex-wrap gap-6">
               {[
-                { label: "Founded", value: "2009" },
-                { label: "Location", value: "Napier Town, Jabalpur" },
+                { label: "Founded", value: "2001" },
+                { label: "Location", value: "709, Marhatal,  Coffee House Road, Jabalpur" },
                 { label: "Category", value: "Hardware & Construction" },
               ].map((f) => (
                 <div key={f.label}>

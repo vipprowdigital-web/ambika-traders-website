@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Image from "next/image";
 
 interface Category {
   _id: string;
@@ -86,7 +87,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="w-full border-b border-zinc-200 bg-white text-black font-sans sticky top-0 z-50">
+    <header className="w-full border-b border-zinc-200 bg-black text-white font-sans sticky top-0 z-50">
 
       {/* Top Utility Bar */}
       {/* <div className="w-full bg-zinc-50 border-b border-zinc-100 py-2 px-4 sm:px-6 lg:px-8 text-xs flex justify-between items-center text-zinc-600">
@@ -108,8 +109,14 @@ export default function Navbar() {
           {/* Logo */}
           <div className="shrink-0">
             <Link href="/" className="flex flex-col">
-              <span className="text-xl font-black tracking-tight uppercase">Brisco</span>
-              <span className="text-[10px] tracking-[0.2em] uppercase text-zinc-500 -mt-1">Architectural Hardware</span>
+             <Image
+  src="/images/brisco.jpeg"
+  alt="Brisco Logo"
+  width={180}
+  height={60}
+  priority
+  className="h-12 w-auto"
+/>
             </Link>
           </div>
 
@@ -225,9 +232,9 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-4">
             <Link
               href="/request-quote"
-              className="bg-black text-white px-5 py-2.5 rounded text-sm font-medium tracking-wide hover:bg-zinc-800 transition-colors"
+              className="bg-white text-black px-5 py-2.5 rounded text-sm font-medium tracking-wide hover:bg-zinc-800 transition-colors"
             >
-              Request a Quote
+              Start Your Dealership Journey
             </Link>
           </div>
 

@@ -38,7 +38,7 @@ export default function AboutUs() {
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-6">
               {[
-                { number: "15+", label: "Years Experience" },
+                { number: "25+", label: "Years Experience" },
                 { number: "500+", label: "Products" },
                 { number: "10K+", label: "Happy Customers" },
               ].map((stat) => (
@@ -70,7 +70,7 @@ export default function AboutUs() {
 
             {/* Floating Badge */}
             <div className="absolute -bottom-5 -left-5 bg-primary text-white rounded-xl px-5 py-3 shadow-lg">
-              <div className="text-xl font-bold">Since 2009</div>
+              <div className="text-xl font-bold">Since 2001</div>
               <div className="text-xs opacity-90">Serving Jabalpur</div>
             </div>
           </div>

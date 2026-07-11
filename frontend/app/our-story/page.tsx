@@ -15,7 +15,7 @@ export default function OurStoryPage() {
     <main>
       <StoryHero />          {/* Page opening — bold headline + founding info */}
       <OwnerSection />       {/* Owner photo + bio + personal quote */}
-      <OurJourney />         {/* Timeline — 2009 to 2024 */}
+      <OurJourney />         {/* Timeline — 2001 to 2024 */}
       <OurValues />          {/* 4 core values */}
       <TeamSection />        {/* Owner + 3 key staff members */}
       <AchievementsSection />{/* Awards, certifications, milestones */}

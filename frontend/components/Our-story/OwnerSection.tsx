@@ -39,7 +39,7 @@ export default function OwnerSection() {
                   background: "var(--primary-color)",
                 }}
               >
-                <div className="text-white font-black text-3xl leading-none">15+</div>
+                <div className="text-white font-black text-3xl leading-none">25+</div>
                 <div className="text-white/80 text-xs font-semibold mt-0.5">Years in<br />Business</div>
               </div>
 
@@ -48,7 +48,7 @@ export default function OwnerSection() {
                 className="absolute -bottom-5 left-6 right-6 rounded-2xl px-5 py-4 border border-foreground/10"
                 style={{ background: "var(--background)" }}
               >
-                <div className="font-black text-foreground text-lg leading-tight">Ramesh Kumar Gupta</div>
+                <div className="font-black text-foreground text-lg leading-tight">Shri Ravi Daswani</div>
                 <div className="text-foreground/45 text-xs font-semibold mt-0.5 uppercase tracking-widest">
                   Founder & Owner
                 </div>
@@ -74,13 +74,13 @@ export default function OwnerSection() {
 
             <div className="space-y-4 text-foreground/60 text-base leading-relaxed mb-8">
               <p>
-                My journey began in 2009 with a small shop in Napier Town, Jabalpur. I had spent years working in the hardware trade, learning every product, every brand, and every customer need from the ground up. When I finally opened my own store, I made a simple promise: only genuine products, honest pricing, and expert advice.
+                My journey began in 2001, when I established our store at 709, Marhatal, Coffee House Road, Jabalpur. With a passion for quality hardware and a commitment to serving customers with honesty, I set out to build a business that people could trust.
               </p>
               <p>
-                Over 15 years, that promise turned a small shop into Jabalpur&apos;s go-to destination for contractors, builders, and homeowners alike. Today, we stock over 1,000 products from 50+ trusted brands — but the values have never changed.
+                Over the years, our dedication to genuine products, fair pricing, and reliable service has earned us the confidence of contractors, builders, architects, and homeowners across Jabalpur. Every product we offer is carefully selected to ensure quality and value for our customers.never changed.
               </p>
               <p>
-                Every customer who walks through our door gets my personal attention. Because for me, this is not just a business. It is a craft, and a responsibility.
+                Today, after more than two decades of serving the community, I continue to personally uphold the same values that inspired this journey from the very beginning. For me, this is more than just a business—it is a lifelong commitment to trust, quality, and customer satisfaction.
               </p>
             </div>
 
@@ -92,7 +92,7 @@ export default function OwnerSection() {
                   Ramesh K. Gupta
                 </div>
                 <div className="text-foreground/40 text-xs font-bold uppercase tracking-widest mt-0.5">
-                  Founder — Est. 2009
+                  Founder — Est. 2001
                 </div>
               </div>
             </div>

@@ -172,12 +172,21 @@ const getProductCategoryBySlugOrId = async (req, res) => {
       ? { _id: slugOrId }
       : { slug: slugOrId };
 
-    const category = await ProductCategory.findOne(query);
+    const category = await ProductCategory.findOne(query)
+      .populate("parentCategory", "name slug")
+      .lean();
     if (!category) {
       return res
         .status(404)
         .json({ success: false, message: "Product Category not found" });
     }
+
+    // Attach children so the frontend knows whether this is a parent or leaf
+    const children = await ProductCategory.find(
+      { parentCategory: category._id, isActive: true },
+      "name slug image description"
+    ).lean();
+    category.children = children;
 
     res.status(200).json({ success: true, data: category });
   } catch (error) {

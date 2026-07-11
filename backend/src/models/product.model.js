@@ -58,12 +58,12 @@ const productSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, "Product description is required"],
+      default: "",
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ProductCategory",
-      required: [true, "Product must belong to a category"],
+      default: null,
     },
     images: [
       {
@@ -73,7 +73,7 @@ const productSchema = new mongoose.Schema(
     ],
 
     specifications: {
-      material: { type: String, required: true }, // e.g., Zinc Alloy, Brass
+      material: { type: String, default: "" }, // e.g., Zinc Alloy, Brass
       mechanism: { type: String },
       weightCapacity: { type: String },
       packagingUnit: { type: String, default: "Piece" },

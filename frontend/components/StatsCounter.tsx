@@ -1,49 +1,101 @@
-// components/StatsCounter.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 
 const stats = [
-  { value: 15, suffix: "+", label: "Years of Experience", icon: "🏆", desc: "Serving Jabalpur since 2009" },
-  { value: 5000, suffix: "+", label: "Happy Customers", icon: "😊", desc: "Across Jabalpur & nearby areas" },
-  { value: 1000, suffix: "+", label: "Products in Stock", icon: "📦", desc: "Always ready for your order" },
-  { value: 50, suffix: "+", label: "Trusted Brands", icon: "✅", desc: "Only genuine, certified products" },
+  {
+    value: 15,
+    suffix: "+",
+    label: "Years of Experience",
+    desc: "Serving Jabalpur since 2001",
+  },
+  {
+    value: 5000,
+    suffix: "+",
+    label: "Happy Customers",
+    desc: "Across Jabalpur & nearby areas",
+  },
+  {
+    value: 1000,
+    suffix: "+",
+    label: "Products in Stock",
+    desc: "Always ready for your order",
+  },
+  {
+    value: 50,
+    suffix: "+",
+    label: "Trusted Brands",
+    desc: "Only genuine, certified products",
+  },
 ];
 
 function useCountUp(target: number, duration = 1800, active: boolean) {
   const [count, setCount] = useState(0);
+
   useEffect(() => {
     if (!active) return;
+
     let start = 0;
     const step = target / (duration / 16);
+
     const timer = setInterval(() => {
       start += step;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(Math.floor(start));
+
+      if (start >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(start));
+      }
     }, 16);
+
     return () => clearInterval(timer);
   }, [target, duration, active]);
+
   return count;
 }
 
-function StatCard({ stat, active, index }: { stat: typeof stats[0]; active: boolean; index: number }) {
+function StatCard({
+  stat,
+  active,
+  index,
+}: {
+  stat: (typeof stats)[0];
+  active: boolean;
+  index: number;
+}) {
   const count = useCountUp(stat.value, 1800, active);
-  const formatted = stat.value >= 1000 ? (count >= 1000 ? `${(count / 1000).toFixed(1)}K` : count) : count;
+
+  const formatted =
+    stat.value >= 1000
+      ? count >= 1000
+        ? `${(count / 1000).toFixed(1)}K`
+        : count
+      : count;
 
   return (
     <div className="relative group text-center">
-      {/* Vertical divider except first */}
+      {/* Vertical Divider */}
       {index > 0 && (
         <div className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 w-px h-16 bg-white/20" />
       )}
 
-      <div className="px-6 py-2">
-        <div className="text-4xl mb-3">{stat.icon}</div>
-        <div className="text-5xl font-black text-white mb-1 tabular-nums">
-          {formatted}{stat.suffix}
+      <div className="px-6 py-4 flex flex-col items-center justify-center">
+        {/* Number */}
+        <div className="text-5xl sm:text-6xl font-black text-white mb-3 tabular-nums group-hover:scale-105 transition-transform duration-300">
+          {formatted}
+          {stat.suffix}
         </div>
-        <div className="text-white font-semibold text-base mb-1">{stat.label}</div>
-        <div className="text-white/60 text-xs">{stat.desc}</div>
+
+        {/* Label */}
+        <div className="text-white font-semibold text-base mb-2">
+          {stat.label}
+        </div>
+
+        {/* Description */}
+        <div className="text-white/60 text-xs leading-relaxed max-w-[180px]">
+          {stat.desc}
+        </div>
       </div>
     </div>
   );
@@ -55,10 +107,14 @@ export default function StatsCounter() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setActive(true); },
+      ([entry]) => {
+        if (entry.isIntersecting) setActive(true);
+      },
       { threshold: 0.3 }
     );
+
     if (ref.current) observer.observe(ref.current);
+
     return () => observer.disconnect();
   }, []);
 
@@ -66,20 +122,21 @@ export default function StatsCounter() {
     <section
       ref={ref}
       className="py-20 relative overflow-hidden"
-  style={{
-  background:
-    "linear-gradient(135deg, #71717a 0%, #52525b 35%, #3f3f46 70%, #18181b 100%)",
-}}
+      style={{
+        background:
+          "linear-gradient(135deg, #71717a 0%, #52525b 35%, #3f3f46 70%, #18181b 100%)",
+      }}
     >
-      {/* Texture overlay */}
+      {/* Texture */}
       <div
         className="absolute inset-0 opacity-10"
         style={{
-          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 11px)`
+          backgroundImage:
+            "repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 11px)",
         }}
       />
 
-      {/* Glowing orbs */}
+      {/* Glow */}
       <div className="absolute top-0 left-1/4 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-56 h-56 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -88,14 +145,20 @@ export default function StatsCounter() {
           <span className="inline-block bg-white/20 text-white text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
             By The Numbers
           </span>
+
           <h2 className="text-4xl sm:text-5xl font-black text-white">
             Our Track Record Speaks
           </h2>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
-          {stats.map((stat, i) => (
-            <StatCard key={stat.label} stat={stat} active={active} index={i} />
+          {stats.map((stat, index) => (
+            <StatCard
+              key={stat.label}
+              stat={stat}
+              active={active}
+              index={index}
+            />
           ))}
         </div>
       </div>

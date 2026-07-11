@@ -47,9 +47,9 @@ export default function InquiryForm() {
             {/* Promise strips */}
             <div className="space-y-3">
               {[
-                { icon: "⚡", text: "Response within 1 hour" },
-                { icon: "💯", text: "No hidden charges — transparent pricing" },
-                { icon: "📦", text: "Bulk discounts available" },
+                { icon: "", text: "Response within 1 hour" },
+                { icon: "", text: "No hidden charges — transparent pricing" },
+                { icon: "", text: "Bulk discounts available" },
               ].map((p) => (
                 <div key={p.text} className="flex items-center gap-3 text-foreground/70">
                   <span className="text-xl">{p.icon}</span>

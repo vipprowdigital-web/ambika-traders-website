@@ -1,5 +1,7 @@
 // app/categories/page.tsx
 // All categories listing page — clicking a category goes to /category/[slug]
+// Shows ONLY parent (top-level) categories — subcategories are reached by
+// clicking through a parent, same as the homepage section.
 
 "use client";
 
@@ -19,7 +21,9 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/product-categories`)
+      // "grouped" returns only top-level (parent) categories, each with its
+      // children nested inside — we only render the parents here.
+      .get(`${API_URL}/product-categories/grouped`)
       .then((res) => {
         setCategories(res.data.data);
         setLoading(false);
@@ -114,7 +118,8 @@ export default function CategoriesPage() {
                       {/* Bottom strip */}
                       <div className="px-5 py-3.5 flex items-center justify-between bg-background border-t border-foreground/8">
                         <span className="text-foreground/50 text-xs font-semibold uppercase tracking-widest">
-                          View Products
+                          {/* @ts-ignore — children may not be typed on Category, but grouped endpoint includes it */}
+                          {cat.children?.length ? `${cat.children.length} subcategories` : "View Products"}
                         </span>
                         <svg
                           className="w-3.5 h-3.5 text-primary group-hover:translate-x-1 transition-transform duration-200"

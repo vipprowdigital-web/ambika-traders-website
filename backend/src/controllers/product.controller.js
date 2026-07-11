@@ -233,7 +233,8 @@ const getProductById = async (req, res) => {
       ? { _id: slugOrId }
       : { slug: slugOrId };
 
-    const product = await Product.findOne(query);
+    const product = await Product.findOne(query)
+      .populate({ path: "category", select: "name slug parentCategory", populate: { path: "parentCategory", select: "name slug" } });
     if (!product) {
       return res
         .status(404)

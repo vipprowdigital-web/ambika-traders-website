@@ -2,11 +2,11 @@
 
 const team = [
   {
-    name: "Ramesh Kumar Gupta",
+    name: "Shri Ravi Daswani",
     role: "Founder & Owner",
-    since: "2009",
+    since: "2001",
     specialty: "Power Tools & Construction Materials",
-    desc: "15+ years in the hardware trade. Personally oversees product quality and vendor relationships.",
+    desc: "25+ years in the hardware trade. Personally oversees product quality and vendor relationships.",
     initials: "RK",
   },
   {
