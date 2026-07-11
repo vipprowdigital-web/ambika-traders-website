@@ -1,50 +1,43 @@
 "use client";
 
 import {
-  Store,
-  Settings,
-  Truck,
+  Lightbulb,
+  Package,
+  Sparkles,
+  ShieldCheck,
   Building2,
-  Boxes,
-  Trophy,
 } from "lucide-react";
 
 const milestones = [
   {
-    year: "2001",
-    title: "The First Shop",
-    desc: "Opened a 200 sq ft shop in Napier Town hardware market with a small inventory of hand tools and fasteners. Just one employee — the owner himself.",
-    icon: Store,
+    year: "2011",
+    title: "The Vision Begins",
+    desc: "BRISCO® was founded with a singular vision—to redefine architectural hardware by delivering products that combine exceptional craftsmanship, uncompromising quality, enduring durability, and timeless elegance.",
+    icon: Lightbulb,
   },
   {
-    year: "2012",
-    title: "Expanding the Range",
-    desc: "Added power tools and plumbing products. Became an authorized dealer for Bosch and Finolex. Shop expanded to 600 sq ft.",
-    icon: Settings,
+    year: "2011",
+    title: "Our First Collection",
+    desc: "The journey began with four carefully selected products: Telescopic Channels, Auto Hinges, Door Catchers, and Cabinet Handles. These products laid the foundation for what would become a trusted hardware brand.",
+    icon: Package,
   },
   {
-    year: "2015",
-    title: "Serving Contractors",
-    desc: "Started bulk supply for construction contractors across Jabalpur. Launched same-day delivery for B2B clients.",
-    icon: Truck,
+    year: "2014+",
+    title: "Innovation & Expansion",
+    desc: "Driven by continuous innovation, BRISCO® expanded its portfolio with premium door handles, locks, hinges, curtain accessories, wardrobe fittings, drawer hardware, brass accessories, and complete architectural hardware solutions.",
+    icon: Sparkles,
   },
   {
-    year: "2018",
-    title: "New Showroom",
-    desc: "Moved to a 2,000 sq ft dedicated showroom with a full display of door hardware, electrical fittings, and paint accessories.",
+    year: "Today",
+    title: "Trusted Across India",
+    desc: "Today, BRISCO® is trusted by architects, interior designers, builders, dealers, and homeowners for products that seamlessly combine innovation, reliability, refined aesthetics, and exceptional durability.",
+    icon: ShieldCheck,
+  },
+  {
+    year: "Future",
+    title: "Building the Future",
+    desc: "With our unwavering 'Quality First' philosophy, BRISCO® continues to innovate and deliver world-class architectural hardware solutions that are crafted with precision, engineered for performance, designed for elegance, and built to last.",
     icon: Building2,
-  },
-  {
-    year: "2021",
-    title: "1,000+ Products",
-    desc: "Crossed 1,000 SKUs in stock. Added Havells, Stanley, Asian Paints, and Godrej to the brand lineup.",
-    icon: Boxes,
-  },
-  {
-    year: "2024",
-    title: "5,000+ Customers Served",
-    desc: "Reached 5,000+ happy customers. Now the most-referred hardware store in Jabalpur with a 4.9-star rating.",
-    icon: Trophy,
   },
 ];
 
@@ -52,13 +45,12 @@ export default function OurJourney() {
   return (
     <section className="py-20 bg-background overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Heading */}
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-4">
             <span className="w-10 h-[2px] bg-primary" />
             <span className="text-primary text-xs font-bold uppercase tracking-[0.22em]">
-              Timeline
+              Our Journey
             </span>
           </div>
 
@@ -66,13 +58,20 @@ export default function OurJourney() {
             className="font-black text-foreground leading-tight tracking-tight"
             style={{ fontSize: "clamp(32px, 5vw, 56px)" }}
           >
-            25 Years of Growth
+            Our Journey Since 2011
           </h2>
+
+          <p className="mt-5 max-w-3xl text-foreground/60 text-lg leading-relaxed">
+            Since 2011, BRISCO® has been redefining architectural hardware with
+            precision engineering, premium craftsmanship, and an unwavering
+            commitment to quality. What began with four essential products has
+            evolved into a trusted brand offering complete hardware solutions
+            for modern residential and commercial spaces.
+          </p>
         </div>
 
         {/* Timeline */}
         <div className="relative">
-
           {/* Vertical Line */}
           <div className="absolute left-[52px] top-0 bottom-0 w-px bg-foreground/10 hidden sm:block" />
 
@@ -82,7 +81,7 @@ export default function OurJourney() {
 
               return (
                 <div
-                  key={m.year}
+                  key={`${m.year}-${i}`}
                   className="relative grid grid-cols-1 sm:grid-cols-[104px_1fr] group"
                 >
                   {/* Timeline Dot */}
@@ -97,9 +96,7 @@ export default function OurJourney() {
                     }`}
                   >
                     <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:-translate-y-1">
-
                       <div className="flex items-start gap-4 mb-4">
-
                         {/* Icon */}
                         <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:bg-primary group-hover:text-white">
                           <Icon size={28} strokeWidth={2} />
@@ -120,14 +117,12 @@ export default function OurJourney() {
                       <p className="text-foreground/60 text-sm leading-relaxed">
                         {m.desc}
                       </p>
-
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
         </div>
       </div>
     </section>

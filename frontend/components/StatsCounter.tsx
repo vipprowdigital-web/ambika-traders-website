@@ -7,7 +7,7 @@ const stats = [
     value: 15,
     suffix: "+",
     label: "Years of Experience",
-    desc: "Serving Jabalpur since 2001",
+    desc: "Serving Jabalpur since 2011",
   },
   {
     value: 5000,

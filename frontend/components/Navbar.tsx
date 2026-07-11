@@ -231,8 +231,8 @@ export default function Navbar() {
           {/* CTA */}
           <div className="hidden lg:flex items-center gap-4">
             <Link
-              href="/request-quote"
-              className="bg-white text-black px-5 py-2.5 rounded text-sm font-medium tracking-wide hover:bg-zinc-800 transition-colors"
+              href="/request-qoute"
+              className="bg-white text-black px-5 py-2.5 rounded text-sm font-medium tracking-wide hover:bg-white transition-colors"
             >
               Start Your Dealership Journey
             </Link>
@@ -240,7 +240,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-black focus:outline-none p-2">
+            <button onClick={() => setIsOpen(!isOpen)} className="text-white focus:outline-none p-2">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -318,10 +318,10 @@ export default function Navbar() {
           <Link href="/our-story" onClick={() => setIsOpen(false)} className="block px-2 py-2 text-base font-medium text-zinc-700">Our Story</Link>
 
           <Link
-            href="/request-quote"
+            href="/request-qoute"
             className="block w-full text-center bg-black text-white mt-3 py-2.5 rounded font-medium text-sm"
           >
-            Request a Quote
+            Start Your Dealership Journey
           </Link>
         </div>
       )}

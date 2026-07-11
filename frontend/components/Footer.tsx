@@ -132,10 +132,10 @@ export default function Footer() {
             <h4 className="text-background font-bold text-sm uppercase tracking-widest mb-5">Contact</h4>
             <ul className="space-y-4">
               {[
-                { icon: "📍", text: config?.companyAddress?.[0]?.address || "" },
-                { icon: "📞", text: config?.phoneNumber || "" },
-                { icon: "💬", text: `WhatsApp: ${config?.phoneNumber || ""}` },
-                { icon: "✉️", text: config?.email || "" },
+                { icon: "", text: config?.companyAddress?.[0]?.address || "" },
+                { icon: "", text: config?.phoneNumber || "" },
+                { icon: "", text: `WhatsApp: ${config?.phoneNumber || ""}` },
+                { icon: "", text: config?.email || "" },
               ].map((c, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
                   <span className="text-sm mt-0.5 flex-shrink-0">{c.icon}</span>
@@ -154,7 +154,7 @@ export default function Footer() {
             © {year} {config?.appName || "Your Hardware Store"}. All rights reserved.
           </p>
           <p className="text-background/25 text-xs">
-            Designed with ❤️ for Jabalpur&apos;s builders & contractors
+            Designed with  for Jabalpur&apos;s builders & contractors
           </p>
         </div>
       </div>

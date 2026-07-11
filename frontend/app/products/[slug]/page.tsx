@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import axios from "axios";
+import { AnimatePresence, motion } from "framer-motion";
+import { useParams, useRouter } from "next/navigation";
 
 interface ProductVariant {
   sku?: string;
   finish: string;
-  size: { value: number; unit: "mm" | "inch" | "cm" };
+  size?: { value?: number; unit?: "mm" | "inch" | "cm" };
   price?: number;
   discountPrice?: number;
   isAvailable?: boolean;
-  images: { url: string; publicId: string }[];
+  images?: { url: string; publicId: string }[];
 }
 
 interface Product {
@@ -30,65 +32,103 @@ interface Product {
   variants: ProductVariant[];
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 const FALLBACK_IMG =
   "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600";
 
-export default function ProductDetailModal({
+const finishColorMap: Record<string, string> = {
+  brass: "#b8860b",
+  gold: "#c79a3c",
+  "antique gold": "#a67c00",
+  chrome: "#d9dde3",
+  silver: "#c7cbd2",
+  black: "#111111",
+  "matt black": "#111111",
+  bronze: "#8c4a12",
+  copper: "#b87333",
+  nickel: "#b8c0c8",
+};
+
+function getFinishMeta(finish?: string) {
+  const normalized = (finish || "").toLowerCase();
+  return {
+    label: finish || "Finish",
+    color: finishColorMap[normalized] || "#8b5cf6",
+  };
+}
+
+function ProductDetailContent({
   product,
   variant,
   onSelectVariant,
   onClose,
 }: {
   product: Product;
-  variant: ProductVariant;
+  variant: ProductVariant | null;
   onSelectVariant: (v: ProductVariant) => void;
-  onClose: () => void;
+  onClose?: () => void;
 }) {
-  const gallery =
-    variant.images && variant.images.length > 0
-      ? variant.images
+  const safeVariant = variant ?? product?.variants?.[0] ?? null;
+
+  const gallery = useMemo(() => {
+    if (!safeVariant) {
+      return product.images?.length ? product.images : [{ url: FALLBACK_IMG, publicId: "fallback" }];
+    }
+
+    return safeVariant.images && safeVariant.images.length > 0
+      ? safeVariant.images
       : product.images && product.images.length > 0
       ? product.images
       : [{ url: FALLBACK_IMG, publicId: "fallback" }];
+  }, [product.images, safeVariant]);
 
   const [activeImg, setActiveImg] = useState(0);
-  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     setActiveImg(0);
-  }, [variant.sku, variant.finish, variant.size?.value, variant.size?.unit]);
+  }, [safeVariant?.sku, safeVariant?.finish, safeVariant?.size?.value, safeVariant?.size?.unit]);
 
-  useEffect(() => {
-    const original = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = original; };
-  }, []);
+  if (!safeVariant) {
+    return (
+      <main className="max-h-[92vh] overflow-y-auto bg-background px-4 py-16 text-foreground sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-foreground/10 bg-foreground/[0.03] p-8 text-center">
+          <h1 className="text-2xl font-semibold">Product details are not available yet.</h1>
+          <p className="mt-3 text-sm text-foreground/60">Please try again or contact support.</p>
+        </div>
+      </main>
+    );
+  }
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  const displayPrice = safeVariant.discountPrice ?? safeVariant.price;
+  const hasDiscount = Boolean(safeVariant.discountPrice && safeVariant.price && safeVariant.discountPrice < safeVariant.price);
 
-  const displayPrice = variant.discountPrice ?? variant.price;
-  const hasDiscount = variant.discountPrice && variant.price && variant.discountPrice < variant.price;
-  const uniqueFinishes = Array.from(new Set(product.variants.map((v) => v.finish).filter(Boolean)));
+  const uniqueFinishes = Array.from(new Set((product.variants || []).map((v) => v.finish).filter(Boolean)));
   const uniqueSizes = Array.from(
-    new Set(product.variants.map((v) => `${v.size?.value}${v.size?.unit || "mm"}`).filter(Boolean))
+    new Set((product.variants || []).map((v) => `${v.size?.value ?? ""}${v.size?.unit || "mm"}`).filter(Boolean))
   );
 
+  const getVariantMatch = (finish?: string, sizeLabel?: string) => {
+    const currentSize = sizeLabel ?? `${safeVariant.size?.value ?? ""}${safeVariant.size?.unit || "mm"}`;
+    const currentFinish = finish ?? safeVariant.finish;
+
+    return (
+      product.variants.find(
+        (v) => v.finish === currentFinish && `${v.size?.value ?? ""}${v.size?.unit || "mm"}` === currentSize
+      ) ||
+      product.variants.find((v) => v.finish === currentFinish) ||
+      product.variants.find((v) => `${v.size?.value ?? ""}${v.size?.unit || "mm"}` === currentSize) ||
+      product.variants[0] ||
+      null
+    );
+  };
+
   const selectByFinish = (finish: string) => {
-    const match =
-      product.variants.find((v) => v.finish === finish && v.size?.value === variant.size?.value) ||
-      product.variants.find((v) => v.finish === finish);
+    const match = getVariantMatch(finish);
     if (match) onSelectVariant(match);
   };
 
   const selectBySize = (sizeLabel: string) => {
-    const match =
-      product.variants.find(
-        (v) => `${v.size?.value}${v.size?.unit || "mm"}` === sizeLabel && v.finish === variant.finish
-      ) || product.variants.find((v) => `${v.size?.value}${v.size?.unit || "mm"}` === sizeLabel);
+    const match = getVariantMatch(safeVariant.finish, sizeLabel);
     if (match) onSelectVariant(match);
   };
 
@@ -99,51 +139,48 @@ export default function ProductDetailModal({
     product.specifications?.packagingUnit && `Packaging: ${product.specifications.packagingUnit}`,
   ].filter(Boolean) as string[];
 
-  const DESCRIPTION_LIMIT = 220;
-  const isLongDescription = (product.description?.length || 0) > DESCRIPTION_LIMIT;
-  const shownDescription =
-    !isLongDescription || descExpanded
-      ? product.description
-      : product.description.slice(0, DESCRIPTION_LIMIT).trimEnd() + "…";
-
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-6"
-    >
-      <div className="absolute inset-0" onClick={onClose} />
+    <main className="max-h-[92vh] overflow-y-auto bg-background px-4 py-6 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6">
+        <div className="sticky top-0 z-10 flex items-center justify-between rounded-2xl border border-foreground/10 bg-background/95 px-4 py-3 backdrop-blur">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/50">Product</p>
+            <h1 className="text-lg font-semibold text-foreground">{product.name}</h1>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="rounded-full border border-foreground/10 bg-background px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+            >
+              Back
+            </button>
+          )}
+        </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 16 }}
-        transition={{ duration: 0.22, ease: [0.25, 1, 0.5, 1] }}
-        className="relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-[28px] border border-foreground/15 bg-background shadow-2xl"
-      >
-        <button
-          onClick={onClose}
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/70 text-sm text-white transition-colors hover:bg-black"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-
-        <div className="overflow-y-auto">
+        <div className="overflow-hidden rounded-[28px] border border-foreground/15 bg-background shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
             <div className="p-4 sm:p-6 xl:sticky xl:top-0 xl:self-start">
               <div className="rounded-[24px] border border-foreground/10 bg-foreground/[0.025] p-3 sm:p-4">
                 <div className="relative aspect-square overflow-hidden rounded-[18px] bg-foreground/[0.04]">
-                  <Image
-                    key={`${variant.sku || variant.finish}-${gallery[activeImg]?.publicId || gallery[activeImg]?.url}`}
-                    src={gallery[activeImg]?.url || FALLBACK_IMG}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`${safeVariant.sku || safeVariant.finish}-${gallery[activeImg]?.publicId || gallery[activeImg]?.url}`}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={gallery[activeImg]?.url || FALLBACK_IMG}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
 
                 {gallery.length > 1 && (
@@ -169,30 +206,26 @@ export default function ProductDetailModal({
                 <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
                   {product.specifications?.material || "Premium Alloy"}
                 </span>
-                {variant.sku && (
+                {safeVariant.sku && (
                   <span className="rounded-full border border-foreground/10 px-2.5 py-1 text-[10px] font-mono text-foreground/45">
-                    SKU: {variant.sku}
+                    SKU: {safeVariant.sku}
                   </span>
                 )}
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                  {product.name}
-                </h2>
-                <p className="mt-2 text-sm text-foreground/60">
-                  Premium finish • crafted for durability and everyday elegance
-                </p>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{product.name}</h2>
+                <p className="mt-2 text-sm text-foreground/60">Premium finish • crafted for durability and everyday elegance</p>
               </div>
 
               <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.03] p-4">
                 <div className="flex flex-wrap items-baseline gap-3">
                   {hasDiscount ? (
                     <>
-                      <span className="text-2xl font-black text-foreground">₹{variant.discountPrice}</span>
-                      <span className="text-sm text-foreground/35 line-through">₹{variant.price}</span>
+                      <span className="text-2xl font-black text-foreground">₹{safeVariant.discountPrice}</span>
+                      <span className="text-sm text-foreground/35 line-through">₹{safeVariant.price}</span>
                       <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-600 dark:bg-emerald-950/30">
-                        {Math.round(((variant.price! - variant.discountPrice!) / variant.price!) * 100)}% off
+                        {Math.round(((safeVariant.price! - safeVariant.discountPrice!) / safeVariant.price!) * 100)}% off
                       </span>
                     </>
                   ) : (
@@ -205,39 +238,43 @@ export default function ProductDetailModal({
 
               {uniqueFinishes.length > 1 && (
                 <div>
-                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-foreground/55">
-                    Finish
-                  </span>
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-foreground/55">Finish</span>
                   <div className="flex flex-wrap gap-2">
-                    {uniqueFinishes.map((finish) => (
-                      <button
-                        key={finish}
-                        onClick={() => selectByFinish(finish)}
-                        className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-all ${
-                          finish === variant.finish
-                            ? "border-primary bg-primary/10 text-foreground"
-                            : "border-foreground/15 text-foreground/60 hover:border-foreground/30"
-                        }`}
-                      >
-                        {finish}
-                      </button>
-                    ))}
+                    {uniqueFinishes.map((finish) => {
+                      const meta = getFinishMeta(finish);
+                      const isActive = finish === safeVariant.finish;
+                      return (
+                        <button
+                          key={finish}
+                          onClick={() => selectByFinish(finish)}
+                          className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition-all ${
+                            isActive
+                              ? "border-primary bg-primary/10 text-foreground"
+                              : "border-foreground/15 text-foreground/60 hover:border-foreground/30"
+                          }`}
+                        >
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10 shadow-sm"
+                            style={{ backgroundColor: meta.color }}
+                          />
+                          <span>{meta.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
               {uniqueSizes.length > 1 && (
                 <div>
-                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-foreground/55">
-                    Size
-                  </span>
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-foreground/55">Size</span>
                   <div className="flex flex-wrap gap-2">
                     {uniqueSizes.map((sizeLabel) => (
                       <button
                         key={sizeLabel}
                         onClick={() => selectBySize(sizeLabel)}
                         className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-all ${
-                          sizeLabel === `${variant.size?.value}${variant.size?.unit || "mm"}`
+                          sizeLabel === `${safeVariant.size?.value ?? ""}${safeVariant.size?.unit || "mm"}`
                             ? "border-primary bg-primary/10 text-foreground"
                             : "border-foreground/15 text-foreground/60 hover:border-foreground/30"
                         }`}
@@ -251,9 +288,7 @@ export default function ProductDetailModal({
 
               {highlightPoints.length > 0 && (
                 <div className="rounded-2xl border border-foreground/10 bg-background p-4">
-                  <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50">
-                    Key details
-                  </div>
+                  <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50">Key details</div>
                   <ul className="space-y-2 text-sm text-foreground/70">
                     {highlightPoints.map((point) => (
                       <li key={point} className="flex gap-2">
@@ -267,9 +302,7 @@ export default function ProductDetailModal({
 
               {product.specifications?.includedComponents && product.specifications.includedComponents.length > 0 && (
                 <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.03] p-4">
-                  <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50">
-                    Box inclusions
-                  </div>
+                  <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground/50">Box inclusions</div>
                   <div className="flex flex-wrap gap-2">
                     {product.specifications.includedComponents.map((comp, idx) => (
                       <span key={idx} className="rounded-full border border-foreground/10 bg-background px-2.5 py-1 text-[11px] text-foreground/70">
@@ -280,7 +313,7 @@ export default function ProductDetailModal({
                 </div>
               )}
 
-              {variant.isAvailable === false && (
+              {safeVariant.isAvailable === false && (
                 <div className="flex items-center justify-center rounded-xl bg-foreground/10 py-3 text-sm font-semibold text-foreground/60">
                   Variant out of stock
                 </div>
@@ -290,21 +323,85 @@ export default function ProductDetailModal({
 
           <div className="border-t border-foreground/10 bg-foreground/[0.02] p-4 sm:p-6 lg:p-8">
             <div className="max-w-3xl">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/55">
-                Product details
-              </h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground/55">Product details</h3>
               <div className="mt-3 space-y-3 text-sm leading-7 text-foreground/70">
-                {product.description
-                  .split(/\n+/)
-                  .filter(Boolean)
-                  .map((paragraph, index) => (
-                    <p key={`${paragraph.slice(0, 20)}-${index}`}>{paragraph}</p>
-                  ))}
+                {product.description.split(/\n+/).filter(Boolean).map((paragraph, index) => (
+                  <p key={`${paragraph.slice(0, 20)}-${index}`}>{paragraph}</p>
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </main>
+  );
+}
+
+export default function ProductPage() {
+  const params = useParams<{ slug?: string }>();
+  const router = useRouter();
+  const slug = params?.slug;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!slug) return;
+
+    setLoading(true);
+    setError(null);
+
+    axios
+      .get(`${API_URL}/products/${slug}`)
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        setProduct(data);
+        setSelectedVariant(data?.variants?.[0] || null);
+      })
+      .catch(() => {
+        setError("Unable to load this product right now.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background px-4 py-16 text-foreground sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl animate-pulse rounded-3xl border border-foreground/10 bg-foreground/[0.03] p-8">
+          <div className="h-6 w-40 rounded bg-foreground/10" />
+          <div className="mt-4 h-10 w-3/4 rounded bg-foreground/10" />
+          <div className="mt-6 h-64 rounded-2xl bg-foreground/10" />
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <main className="min-h-screen bg-background px-4 py-16 text-foreground sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-foreground/10 bg-foreground/[0.03] p-8 text-center">
+          <h1 className="text-2xl font-semibold">Product not found</h1>
+          <p className="mt-3 text-sm text-foreground/60">The product you requested could not be loaded.</p>
+          <button
+            onClick={() => router.back()}
+            className="mt-6 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white"
+          >
+            Go back
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <ProductDetailContent
+      product={product}
+      variant={selectedVariant}
+      onSelectVariant={setSelectedVariant}
+      onClose={() => router.back()}
+    />
   );
 }

@@ -5,7 +5,7 @@ const contactDetails = [
   {
    
     label: "Visit Us",
-    value: "123, Hardware Market, Napier Town,\nJabalpur, Madhya Pradesh — 482001",
+    value: "123, Hardware Market, Napier Town,\nJabalpur, Madhya Pradesh — 482011",
     href: "https://maps.google.com/?q=Jabalpur+Hardware+Market",
     linkText: "Get Directions →",
   },

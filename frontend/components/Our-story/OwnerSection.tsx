@@ -39,7 +39,7 @@ export default function OwnerSection() {
                   background: "var(--primary-color)",
                 }}
               >
-                <div className="text-white font-black text-3xl leading-none">25+</div>
+                <div className="text-white font-black text-3xl leading-none">15+</div>
                 <div className="text-white/80 text-xs font-semibold mt-0.5">Years in<br />Business</div>
               </div>
 
@@ -74,7 +74,7 @@ export default function OwnerSection() {
 
             <div className="space-y-4 text-foreground/60 text-base leading-relaxed mb-8">
               <p>
-                My journey began in 2001, when I established our store at 709, Marhatal, Coffee House Road, Jabalpur. With a passion for quality hardware and a commitment to serving customers with honesty, I set out to build a business that people could trust.
+                My journey began in 2011, when I established our store at 709, Marhatal, Coffee House Road, Jabalpur. With a passion for quality hardware and a commitment to serving customers with honesty, I set out to build a business that people could trust.
               </p>
               <p>
                 Over the years, our dedication to genuine products, fair pricing, and reliable service has earned us the confidence of contractors, builders, architects, and homeowners across Jabalpur. Every product we offer is carefully selected to ensure quality and value for our customers.never changed.
@@ -89,10 +89,10 @@ export default function OwnerSection() {
               <div>
                 {/* Replace with actual signature image if available */}
                 <div className="text-foreground font-black text-2xl" style={{ fontFamily: "Georgia, serif" }}>
-                  Ramesh K. Gupta
+                 Shri Ravi Daswani 
                 </div>
                 <div className="text-foreground/40 text-xs font-bold uppercase tracking-widest mt-0.5">
-                  Founder — Est. 2001
+                  Founder — Est. 2011
                 </div>
               </div>
             </div>

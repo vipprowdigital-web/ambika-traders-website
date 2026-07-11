@@ -29,7 +29,7 @@ export default function StoryHero() {
           WebkitTextStroke: "1px rgba(82,82,91,0.08)",
         }}
       >
-        SINCE<br />2001
+        SINCE<br />2011
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-32 w-full">
@@ -41,32 +41,51 @@ export default function StoryHero() {
         </div>
 
         {/* Main headline — split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
           <div>
             <h1
               className="font-black text-foreground leading-[0.95] tracking-tight"
               style={{ fontSize: "clamp(44px, 7vw, 80px)" }}
             >
-              Built on<br />
-              Hard Work.<br />
-              <span className="text-primary">Built to Last.</span>
+              Crafted with
+              <br />
+              Precision.
+              <br />
+              <span className="text-primary">Built on Quality.</span>
             </h1>
           </div>
 
           <div className="lg:pb-2">
             <p className="text-foreground/55 text-lg leading-relaxed mb-6 max-w-md">
-              What started as a small shop in Jabalpur&apos;s hardware market has grown into the region&apos;s most trusted destination — one tool, one customer, one promise at a time.
+              Since 2011, BRISCO® has been redefining architectural hardware by
+              combining exceptional craftsmanship, precision engineering, and
+              uncompromising quality to create products that are built to
+              perform and designed to last.
             </p>
-            {/* Quick facts inline */}
+
+            {/* Quick Facts */}
             <div className="flex flex-wrap gap-6">
               {[
-                { label: "Founded", value: "2001" },
-                { label: "Location", value: "709, Marhatal,  Coffee House Road, Jabalpur" },
-                { label: "Category", value: "Hardware & Construction" },
+                {
+                  label: "Founded",
+                  value: "2011",
+                },
+                {
+                  label: "Industry",
+                  value: "Architectural Hardware",
+                },
+                {
+                  label: "Speciality",
+                  value: "Complete Hardware Solutions",
+                },
               ].map((f) => (
                 <div key={f.label}>
-                  <div className="text-foreground/35 text-[10px] font-bold uppercase tracking-widest mb-0.5">{f.label}</div>
-                  <div className="text-foreground font-bold text-sm">{f.value}</div>
+                  <div className="text-foreground/35 text-[10px] font-bold uppercase tracking-widest mb-0.5">
+                    {f.label}
+                  </div>
+                  <div className="text-foreground font-bold text-sm">
+                    {f.value}
+                  </div>
                 </div>
               ))}
             </div>

@@ -46,6 +46,27 @@ interface Product {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
+const finishColorMap: Record<string, string> = {
+  brass: "#b8860b",
+  gold: "#c79a3c",
+  "antique gold": "#a67c00",
+  chrome: "#d9dde3",
+  silver: "#c7cbd2",
+  black: "#111111",
+  "matt black": "#111111",
+  bronze: "#8c4a12",
+  copper: "#b87333",
+  nickel: "#b8c0c8",
+};
+
+function getFinishMeta(finish?: string) {
+  const normalized = (finish || "").toLowerCase();
+  return {
+    label: finish || "Finish",
+    color: finishColorMap[normalized] || "#8b5cf6",
+  };
+}
+
 function CategorySection() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -271,18 +292,28 @@ function ProductDetailModal({
     new Set(product.variants.map((v) => `${v.size?.value}${v.size?.unit || "mm"}`).filter(Boolean))
   );
 
+  const getVariantMatch = (finish?: string, sizeLabel?: string) => {
+    const currentSize = sizeLabel ?? `${variant.size?.value}${variant.size?.unit || "mm"}`;
+    const currentFinish = finish ?? variant.finish;
+
+    return (
+      product.variants.find(
+        (v) => v.finish === currentFinish && `${v.size?.value}${v.size?.unit || "mm"}` === currentSize
+      ) ||
+      product.variants.find((v) => v.finish === currentFinish) ||
+      product.variants.find((v) => `${v.size?.value}${v.size?.unit || "mm"}` === currentSize) ||
+      product.variants[0] ||
+      null
+    );
+  };
+
   const selectByFinish = (finish: string) => {
-    const match =
-      product.variants.find((v) => v.finish === finish && v.size?.value === variant.size?.value) ||
-      product.variants.find((v) => v.finish === finish);
+    const match = getVariantMatch(finish);
     if (match) onSelectVariant(match);
   };
 
   const selectBySize = (sizeLabel: string) => {
-    const match =
-      product.variants.find(
-        (v) => `${v.size?.value}${v.size?.unit || "mm"}` === sizeLabel && v.finish === variant.finish
-      ) || product.variants.find((v) => `${v.size?.value}${v.size?.unit || "mm"}` === sizeLabel);
+    const match = getVariantMatch(variant.finish, sizeLabel);
     if (match) onSelectVariant(match);
   };
 
@@ -307,7 +338,7 @@ function ProductDetailModal({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
-        className="relative w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-[28px] border border-foreground/15 bg-background shadow-2xl"
+        className="relative flex h-[100dvh] w-full flex-col overflow-hidden rounded-none border border-foreground/15 bg-background shadow-2xl sm:h-auto sm:max-h-[92dvh] sm:max-w-6xl sm:rounded-[28px]"
       >
         <button
           onClick={onClose}
@@ -317,20 +348,30 @@ function ProductDetailModal({
           ✕
         </button>
 
-        <div className="overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
             <div className="p-4 sm:p-6 xl:sticky xl:top-0 xl:self-start">
               <div className="rounded-[24px] border border-foreground/10 bg-foreground/[0.025] p-3 sm:p-4">
                 <div className="relative aspect-square overflow-hidden rounded-[18px] bg-foreground/[0.04]">
-                  <Image
-                    key={`${variant.sku || variant.finish}-${gallery[activeImg]?.publicId || gallery[activeImg]?.url}`}
-                    src={gallery[activeImg]?.url || "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600"}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    priority
-                  />
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`${variant.sku || variant.finish}-${gallery[activeImg]?.publicId || gallery[activeImg]?.url}`}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.02 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={gallery[activeImg]?.url || "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=600"}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        priority
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
 
                 {gallery.length > 1 && (
@@ -390,19 +431,27 @@ function ProductDetailModal({
                 <div>
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-foreground/55">Finish</span>
                   <div className="flex flex-wrap gap-2">
-                    {uniqueFinishes.map((finish) => (
-                      <button
-                        key={finish}
-                        onClick={() => selectByFinish(finish)}
-                        className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-all ${
-                          finish === variant.finish
-                            ? "border-primary bg-primary/10 text-foreground"
-                            : "border-foreground/15 text-foreground/60 hover:border-foreground/30"
-                        }`}
-                      >
-                        {finish}
-                      </button>
-                    ))}
+                    {uniqueFinishes.map((finish) => {
+                      const meta = getFinishMeta(finish);
+                      const isActive = finish === variant.finish;
+                      return (
+                        <button
+                          key={finish}
+                          onClick={() => selectByFinish(finish)}
+                          className={`flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition-all ${
+                            isActive
+                              ? "border-primary bg-primary/10 text-foreground"
+                              : "border-foreground/15 text-foreground/60 hover:border-foreground/30"
+                          }`}
+                        >
+                          <span
+                            className="h-4 w-4 rounded-full border border-black/10 shadow-sm"
+                            style={{ backgroundColor: meta.color }}
+                          />
+                          <span>{meta.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

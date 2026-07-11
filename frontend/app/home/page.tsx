@@ -110,7 +110,7 @@ export default function HeroSection() {
               className="text-zinc-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed font-medium"
             >
               High-grade tools, industrial machinery, premium fittings —
-              all genuine, all in stock. Trusted by Jabalpur&apos;s builders since 2001.
+              all genuine, all in stock. Trusted by Jabalpur&apos;s builders since 2011.
             </motion.p>
 
             <motion.div

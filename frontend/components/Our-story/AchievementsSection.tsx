@@ -1,50 +1,50 @@
 "use client";
 
 import {
-  Trophy,
-  BadgeCheck,
   ShieldCheck,
-  Star,
-  Handshake,
+  Gem,
+  Cog,
+  Sparkles,
   Boxes,
+  Handshake,
 } from "lucide-react";
 
 const achievements = [
   {
-    icon: Trophy,
-    title: "Best Hardware Store — Jabalpur",
-    body: "Voted by local contractors association for 3 consecutive years (2021, 2022, 2023).",
-    tag: "Award",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Authorized Bosch Dealer",
-    body: "Certified authorized dealer for Bosch power tools — guaranteeing 100% genuine products and warranty support.",
-    tag: "Certification",
-  },
-  {
     icon: ShieldCheck,
-    title: "Finolex Authorized Partner",
-    body: "Official stockist for Finolex cables and pipes with full manufacturer warranty.",
-    tag: "Certification",
+    title: "Quality First Philosophy",
+    body: "Quality is at the heart of everything we do. Every BRISCO® product is manufactured using premium materials, precision engineering, and rigorous quality control standards.",
+    tag: "Core Value",
   },
   {
-    icon: Star,
-    title: "4.9 / 5 Google Rating",
-    body: "Over 500 verified customer reviews — consistently rated among the top hardware stores in Madhya Pradesh.",
-    tag: "Recognition",
+    icon: Gem,
+    title: "Premium Craftsmanship",
+    body: "Designed with exceptional attention to detail, our hardware products combine durability, elegance, and superior finishing for modern architectural spaces.",
+    tag: "Craftsmanship",
   },
   {
-    icon: Handshake,
-    title: "Preferred Supplier — 50+ Contractors",
-    body: "Trusted long-term supplier for over 50 active civil contractors, builders, and interior designers in Jabalpur.",
-    tag: "Partnership",
+    icon: Cog,
+    title: "Precision Engineering",
+    body: "Every product is engineered for smooth performance, long-lasting reliability, and everyday functionality without compromising aesthetics.",
+    tag: "Engineering",
+  },
+  {
+    icon: Sparkles,
+    title: "Elegant Designs",
+    body: "Our collections are thoughtfully designed to complement contemporary residential, commercial, and luxury interior projects.",
+    tag: "Design",
   },
   {
     icon: Boxes,
-    title: "1,000+ Products in Stock",
-    body: "One of Jabalpur's widest hardware inventories — from a single bolt to full construction material packages.",
-    tag: "Milestone",
+    title: "Complete Hardware Solutions",
+    body: "From door handles and locks to hinges, wardrobe accessories, curtain fittings, drawer hardware, and more, BRISCO® offers a comprehensive architectural hardware portfolio.",
+    tag: "Collection",
+  },
+  {
+    icon: Handshake,
+    title: "Trusted by Professionals",
+    body: "Architects, interior designers, builders, dealers, and homeowners trust BRISCO® for products that deliver consistent quality, reliability, and lasting performance.",
+    tag: "Trust",
   },
 ];
 
@@ -58,7 +58,7 @@ export default function AchievementsSection() {
           <div className="flex items-center gap-3 mb-4">
             <span className="w-10 h-[2px] bg-primary" />
             <span className="text-primary text-xs font-bold uppercase tracking-[0.22em]">
-              Recognition
+              Why BRISCO
             </span>
           </div>
 
@@ -66,7 +66,7 @@ export default function AchievementsSection() {
             className="font-black text-foreground leading-tight tracking-tight"
             style={{ fontSize: "clamp(32px, 5vw, 56px)" }}
           >
-            Awards & Certifications
+            Built on Quality. Trusted for Performance.
           </h2>
         </div>
 
