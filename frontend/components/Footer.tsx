@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
+import { Link } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
@@ -21,21 +24,24 @@ export default function Footer() {
   }, []);
 
   // Social links array with dynamic href
-  const socials = [
-    { label: "Facebook", href: config?.facebookLink || "#", icon: "FB" }, // Aap apna actual icon component yahan rakh sakte hain
-    { label: "Instagram", href: config?.instagramLink || "#", icon: "IG" },
-    { label: "WhatsApp", href: config?.whatsAppLink || "#", icon: "WA" },
-    { label: "Youtube", href: config?.youtubeLink || "#", icon: "YT" },
-  ];
+  
 
+// ... baaki sab same
+
+const socials = [
+  { label: "Facebook", href: config?.facebookLink || "#", icon: <Facebook size={16} /> },
+  { label: "Instagram", href: config?.instagramLink || "#", icon: <Instagram size={16} /> },
+  { label: "WhatsApp", href: config?.whatsAppLink || "#", icon: "WA" },
+  { label: "Youtube", href: config?.youtubeLink || "#", icon: "YT" },
+];
   // Quick Links placeholder array (Aapke purane code ki functionality bachane ke liye)
-  const quickLinks = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Shop", href: "/shop" },
-    { label: "Contact", href: "/contact" },
-  ];
-
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products" },
+  { label: "Categories", href: "/categories" },
+  { label: "Our Story", href: "/our-story" },
+  
+];
   // Categories placeholder array (Aapke purane code ki functionality bachane ke liye)
   const categories = [
     { label: "Power Tools", href: "/category/power-tools" },
@@ -51,45 +57,43 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           
           {/* Brand column */}
-          <div className="lg:col-span-1">
-            {/* Logo placeholder */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black text-lg">
-                H
-              </div>
-              <div>
-                {/* Step 3: Brand Name */}
-                <div className="font-black text-background text-base leading-tight">
-                  {config?.appName || "Your Hardware"}
-                </div>
-                <div className="text-background/50 text-xs">Store, Jabalpur</div>
-              </div>
-            </div>
-            {/* Step 4: Description */}
-            <p className="text-background/50 text-sm leading-relaxed mb-6">
-              {config?.appName}
-            </p>
+<div className="lg:col-span-1">
+  {/* Logo */}
 
-            {/* Social icons with ⭐ Improvement (Filters empty links) */}
-            <div className="flex items-center gap-3">
-              {socials
-                .filter((s) => s.href && s.href !== "#")
-                .map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={s.label}
-                    className="w-9 h-9 rounded-full bg-background/10 hover:bg-primary hover:text-white
-                               flex items-center justify-center text-background/60
-                               transition-all duration-200"
-                  >
-                    {s.icon}
-                  </a>
-                ))}
-            </div>
-          </div>
+  <Image
+    src="/images/brisco.jpeg"
+    alt="Brisco"
+    width={180}
+    height={60}
+    priority
+    className="w-auto h-12"
+  />
+
+
+  {/* Description */}
+  <p className="text-background/50 text-sm leading-relaxed mb-6">
+    {config?.appName ||
+      "Complete Hardware Solutions with Premium Quality Products."}
+  </p>
+
+  {/* Social Icons */}
+  <div className="flex items-center gap-3">
+    {socials
+      .filter((s) => s.href && s.href !== "#")
+      .map((s) => (
+        <a
+          key={s.label}
+          href={s.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={s.label}
+          className="w-9 h-9 rounded-full bg-background/10 hover:bg-primary hover:text-white flex items-center justify-center text-background/60 transition-all duration-200"
+        >
+          {s.icon}
+        </a>
+      ))}
+  </div>
+</div>
 
           {/* Quick Links */}
           <div>
@@ -149,15 +153,24 @@ export default function Footer() {
 
       {/* Bottom bar - Step 10 */}
       <div className="border-t border-background/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-background/35 text-xs">
-            © {year} {config?.appName || "Your Hardware Store"}. All rights reserved.
-          </p>
-          <p className="text-background/25 text-xs">
-            Designed with  for Jabalpur&apos;s builders & contractors
-          </p>
-        </div>
-      </div>
+  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
+    <p className="text-background/35 text-xs">
+      © {year} {config?.appName || "Brisco"}. All rights reserved.
+    </p>
+
+    <p className="text-background/25 text-xs">
+      Developed by{" "}
+      <a
+        href="https://vipprow.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary hover:underline font-semibold"
+      >
+        Vipprow
+      </a>
+    </p>
+  </div>
+</div>
     </footer>
   );
 }

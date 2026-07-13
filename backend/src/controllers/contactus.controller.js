@@ -1,5 +1,6 @@
 import ContactUs from "../models/contactus.model.js";
 import mongoose from "mongoose";
+import { sendEmail } from "../utils/sendEmail.js";
 
 /* ============================================================
    📌 CREATE ContactUs (Public)
@@ -10,7 +11,6 @@ export const createContactUs = async (req, res) => {
       req.body;
     console.log("Req.body: ", req.body);
 
-    // Validate required fields
     if (!type) {
       return res.status(400).json({
         status: "error",
@@ -40,9 +40,6 @@ export const createContactUs = async (req, res) => {
       }
     }
 
-    // ---------------------------------------------
-    // 🌟 CREATE DOCUMENT
-    // ---------------------------------------------
     const contact = await ContactUs.create({
       type,
       name,
@@ -51,11 +48,77 @@ export const createContactUs = async (req, res) => {
       subject: subject || null,
       message,
       meta: meta || {},
-      services: services || null, // 👈 ADD THIS
+      services: services || null,
       ipAddress: req.ip,
       userAgent: req.headers["user-agent"],
       createdBy: req.user?._id || null,
     });
+
+    // 📧 Send email notification to shop owner
+   // 📧 Send email notification to shop owner
+await sendEmail({
+  subject: `New Inquiry: ${type} - ${name}`,
+  html: `
+  <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f7; padding: 24px;">
+    <div style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      
+      <!-- Header -->
+      <div style="background-color: #1a1a1a; padding: 24px 32px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 700;">
+          🔔 New Inquiry Received
+        </h1>
+        <p style="color: #cccccc; margin: 4px 0 0; font-size: 13px;">
+          Brisco — Website Notification
+        </p>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 32px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888; font-size: 13px; width: 130px;">Type</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a1a1a; font-size: 14px; font-weight: 600;">${type}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888; font-size: 13px;">Name</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a1a1a; font-size: 14px; font-weight: 600;">${name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888; font-size: 13px;">Phone</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a1a1a; font-size: 14px; font-weight: 600;">
+              <a href="tel:${phone}" style="color: #d97706; text-decoration: none;">${phone}</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888; font-size: 13px;">Email</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a1a1a; font-size: 14px;">${email || "N/A"}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888; font-size: 13px;">Subject</td>
+            <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a1a1a; font-size: 14px;">${subject || "N/A"}</td>
+          </tr>
+        </table>
+
+        <div style="margin-top: 20px;">
+          <p style="color: #888; font-size: 13px; margin: 0 0 6px;">Message</p>
+          <div style="background-color: #f9f9fb; border-left: 3px solid #d97706; padding: 14px 16px; border-radius: 6px; color: #333; font-size: 14px; line-height: 1.6;">
+            ${message || "No message provided."}
+          </div>
+        </div>
+
+       
+      </div>
+
+      <!-- Footer -->
+      <div style="background-color: #fafafa; padding: 16px 32px; border-top: 1px solid #eee; text-align: center;">
+        <p style="color: #aaa; font-size: 12px; margin: 0;">
+          This is an automated notification from Brisco website.
+        </p>
+      </div>
+    </div>
+  </div>
+  `,
+});
 
     return res.status(201).json({
       status: "success",

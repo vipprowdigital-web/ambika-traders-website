@@ -4,28 +4,28 @@ import { useEffect, useRef, useState } from "react";
 
 const stats = [
   {
-    value: 15,
+    value: 14,
     suffix: "+",
-    label: "Years of Experience",
-    desc: "Serving Jabalpur since 2011",
+    label: "Years of Excellence",
+    desc: "Delivering premium architectural hardware since 2011.",
   },
   {
-    value: 5000,
-    suffix: "+",
-    label: "Happy Customers",
-    desc: "Across Jabalpur & nearby areas",
+    value: 4,
+    suffix: "",
+    label: "Products at Launch",
+    desc: "Our journey began with four carefully selected hardware products.",
   },
   {
-    value: 1000,
+    value: 500,
     suffix: "+",
-    label: "Products in Stock",
-    desc: "Always ready for your order",
+    label: "Product Categories",
+    desc: "A complete range of architectural hardware solutions.",
   },
   {
-    value: 50,
-    suffix: "+",
-    label: "Trusted Brands",
-    desc: "Only genuine, certified products",
+    value: 1,
+    suffix: "",
+    label: "Quality First Philosophy",
+    desc: "One unwavering commitment that drives every BRISCO® product.",
   },
 ];
 
@@ -143,11 +143,11 @@ export default function StatsCounter() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-12">
           <span className="inline-block bg-white/20 text-white text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-            By The Numbers
+           BRISCO at a Glance 
           </span>
 
           <h2 className="text-4xl sm:text-5xl font-black text-white">
-            Our Track Record Speaks
+           Built on Quality. Driven by Innovation.
           </h2>
         </div>
 

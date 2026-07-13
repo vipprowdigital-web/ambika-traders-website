@@ -150,12 +150,22 @@ export default function RequestQuoteForm() {
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
-                <option value="power-tools">Power Tools & Machinery</option>
-                <option value="plumbing">Plumbing & Fittings</option>
-                <option value="electrical">Electrical & Lighting</option>
-                <option value="fasteners">Fasteners (Nut, Bolts, Screws)</option>
-                <option value="safety-gear">Safety & Protective Gear</option>
-                <option value="other">Others / Multiple Items</option>
+               <option value="door-handles">Door Handles</option>
+<option value="main-door-locks">Main Door Locks</option>
+<option value="mortise-handles-locks">Mortise Handles & Locks</option>
+<option value="cabinet-handles">Cabinet Handles</option>
+<option value="drawer-systems-channels">Drawer Systems & Channels</option>
+<option value="hinges">Hinges</option>
+<option value="door-closers">Door Closers</option>
+<option value="wardrobe-accessories">Wardrobe Accessories</option>
+<option value="curtain-accessories">Curtain Accessories</option>
+<option value="glass-hardware">Glass Hardware</option>
+<option value="bathroom-accessories">Bathroom Accessories</option>
+<option value="furniture-fittings">Furniture Fittings</option>
+<option value="kitchen-hardware">Kitchen Hardware</option>
+<option value="architectural-hardware">Architectural Hardware</option>
+<option value="complete-hardware-solution">Complete Hardware Solution</option>
+<option value="other">Others / Multiple Products</option>
               </select>
             </div>
             <div className="flex flex-col gap-2">

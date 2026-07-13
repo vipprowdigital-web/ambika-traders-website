@@ -13,7 +13,7 @@ export default function InquiryForm() {
     const msg = encodeURIComponent(
       `Hello! I'd like a quote.\n\nName: ${form.name}\nPhone: ${form.phone}\nProduct: ${form.product}\nMessage: ${form.message}`
     );
-    window.open(`https://wa.me/91746 54434?text=${msg}`, "_blank");
+   window.open(`https://wa.me/9174654434?text=${msg}`, "_blank");
     setSubmitted(true);
   };
 
