@@ -5,15 +5,15 @@ const contactDetails = [
   {
    
     label: "Visit Us",
-    value: "123, Hardware Market, Napier Town,\nJabalpur, Madhya Pradesh — 482011",
+    value: " 709, Marhatal,  Coffee House Road, Jabalpur Napier Town",
     href: "https://maps.google.com/?q=Jabalpur+Hardware+Market",
     linkText: "Get Directions →",
   },
   {
    
     label: "Call Us",
-    value: "+91 98765 43210\n+91 91234 56789",
-    href: "tel:+919876543210",
+    value: "+91 8718918781\n+91 91234 56789",
+    href: "tel:+918718918781",
     linkText: "Call Now →",
   },
   {
@@ -26,8 +26,8 @@ const contactDetails = [
   {
     
     label: "Email",
-    value: "info@yourhardwarestore.com",
-    href: "mailto:info@yourhardwarestore.com",
+    value: "briscojbp@gmail.com ",
+    href: "mailto:briscojbp@gmail.com ",
     linkText: "Send Email →",
   },
 ];
@@ -57,20 +57,19 @@ export default function ContactLocation() {
           <div className="lg:col-span-3 flex flex-col gap-6">
 
             {/* Map embed */}
-            <div className="rounded-3xl overflow-hidden border border-foreground/10 h-72 bg-foreground/5 relative">
-              {/*
-                Replace iframe below with your actual store coordinates:
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=YOUR_EMBED_URL"
-                  width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy"
-                />
-              */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-foreground/25">
-                <span className="text-6xl mb-2">🗺️</span>
-                <p className="text-sm font-medium">Embed your Google Map here</p>
-                <p className="text-xs mt-1 opacity-70">Replace iframe in ContactLocation.tsx</p>
-              </div>
-            </div>
+            {/* Map embed */}
+<div className="rounded-3xl overflow-hidden border border-foreground/10 h-72 bg-foreground/5 relative">
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14672.308945656134!2d79.9324537!3d23.1673898!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3981ae604bbdb66d%3A0x6d9f7ef951b14a9!2sNapier%20Town%2C%20Jabalpur%2C%20Madhya%20Pradesh%20482001!5e0!3m2!1sen!2sin!4v1721000000000!5m2!1sen!2sin"
+    width="100%"
+    height="100%"
+    style={{ border: 0 }}
+    allowFullScreen
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+    className="relative z-10" // Taki map placeholder text ke upar dikhe
+  />
+</div>
 
             {/* Store hours */}
             <div className="rounded-3xl border border-foreground/10 bg-foreground/[0.02] p-6">

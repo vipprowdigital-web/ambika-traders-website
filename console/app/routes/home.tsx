@@ -5,8 +5,8 @@ import one_states_logo from "@/welcome/one_states_logo.png";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "One States Admin Console" },
-    { name: "description", content: "Welcome to One States!" },
+    { title: "Brisco Admin Console" },
+    { name: "description", content: "Welcome to Brisco!" },
   ];
 }
 

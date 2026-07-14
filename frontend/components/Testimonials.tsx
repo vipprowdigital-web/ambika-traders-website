@@ -20,7 +20,6 @@ interface Testimonial {
 function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, "").trim();
 }
-
 function StarRow({ count }: { count: number }) {
   return (
     <div className="flex gap-0.5">

@@ -43,7 +43,7 @@ export default function AdminLayout({
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink href="/admin/blog">
-                    One States Console
+                    Brisco Console
                   </BreadcrumbLink>
                 </BreadcrumbItem>
 

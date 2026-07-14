@@ -132,9 +132,9 @@ export function SignInForm({
               </FieldDescription>
             </FieldGroup>
           </form>
-          <div className="relative hidden md:block bg-white dark:bg-secondary">
+          <div className="relative hidden md:block bg-black dark:bg-secondary">
             <img
-              src={one_states_logo}
+              src="/brisco.jpeg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-contain p-5"
             />
