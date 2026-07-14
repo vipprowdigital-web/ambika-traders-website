@@ -18,29 +18,44 @@ export default function AboutUs() {
           {/* Left: Text */}
           <div>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6 leading-tight">
-              Jabalpur&apos;s Most Trusted{" "}
-              <span className="text-primary">Hardware & Construction</span>{" "}
-              Store
+              Redefining{" "}
+              <span className="text-primary">Architectural Hardware</span> Since
+              2011
             </h2>
 
             <p className="text-foreground/70 text-lg leading-relaxed mb-6">
-              We provide high-quality hardware products, construction materials, power tools,
-              plumbing solutions, and electrical accessories for both residential and
-              commercial projects.
+              Since 2011, BRISCO® has been delivering premium architectural
+              hardware solutions that combine precision engineering, exceptional
+              craftsmanship, and timeless elegance. Every product is
+              thoughtfully designed to enhance modern residential, commercial,
+              and luxury interior spaces.
             </p>
 
             <p className="text-foreground/70 text-base leading-relaxed mb-8">
-              With over 15 years of experience, we have earned the trust of thousands of
-              customers across Jabalpur and surrounding areas. We offer genuine brands,
-              competitive pricing, and expert guidance to meet all your hardware needs.
+              What began with four carefully selected products has evolved into
+              a comprehensive hardware portfolio trusted by architects, interior
+              designers, builders, dealers, and homeowners. Guided by our{" "}
+              <strong>Quality First </strong>
+              philosophy, we continue to create reliable solutions that are
+              crafted with precision, engineered for performance, designed for
+              elegance, and built to last.
             </p>
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-6">
               {[
-                { number: "15+", label: "Years Experience" },
-                { number: "500+", label: "Products" },
-                { number: "10K+", label: "Happy Customers" },
+                {
+                  number: "2011",
+                  label: "Established",
+                },
+                {
+                  number: "4",
+                  label: "Products at Launch",
+                },
+                {
+                  number: "Quality",
+                  label: "First Philosophy",
+                },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -60,7 +75,12 @@ export default function AboutUs() {
           {/* Right: Image Placeholder (replace with your actual store image) */}
           <div className="relative">
             <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-foreground/5 border border-foreground/10 flex items-center justify-center">
-              <Image src="/images/storee.png" alt="Our Store" fill className="object-cover" />
+              <Image
+                src="/images/showroom.jpg"
+                alt="Our Store"
+                fill
+                className="object-cover"
+              />
               {/* <div className="text-center text-foreground/30">
                 <div className="text-6xl mb-3">🏪</div>
                 <p className="text-sm">Store Image Here</p>
